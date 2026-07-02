@@ -5,7 +5,9 @@
       "name": "ai daily hot",
       "description": "AI HOT 日报自动化推送 — 从 aihot.virxact.com 拉取每日 AI 资讯，生成 Apple 风格 HTML 邮件推送。支持纯邮件或 GitHub Pages 两种输出方式。关键词：AI日报、AI早报、每日AI、邮件推送",
       "notes": "",
-      "tags": [],
+      "tags": [
+        "自动化"
+      ],
       "versions": [
         {
           "version": "2.0.0",
@@ -16,8 +18,8 @@
         }
       ],
       "createdAt": "2026-07-02T07:24:28.422Z",
-      "updatedAt": "2026-07-02T07:24:28.422Z"
+      "updatedAt": "2026-07-02T07:24:39.449Z"
     }
   },
-  "updatedAt": "2026-07-02T07:24:29.877Z"
+  "updatedAt": "2026-07-02T07:24:39.885Z"
 }
