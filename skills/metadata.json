@@ -217,7 +217,27 @@
       ],
       "createdAt": "2026-07-02T08:05:33.266Z",
       "updatedAt": "2026-07-02T08:05:33.266Z"
+    },
+    "posterpackaging": {
+      "id": "posterpackaging",
+      "name": "一周一发打包整理",
+      "description": "（暂无简介）",
+      "notes": "qclaw",
+      "tags": [
+        "自动化"
+      ],
+      "versions": [
+        {
+          "version": "20260702",
+          "file": "posterpackaging-20260702.zip",
+          "date": "2026-07-02T08:12:57.249Z",
+          "changelog": "",
+          "size": 1500
+        }
+      ],
+      "createdAt": "2026-07-02T08:12:55.303Z",
+      "updatedAt": "2026-07-02T08:12:55.303Z"
     }
   },
-  "updatedAt": "2026-07-02T08:05:35.545Z"
+  "updatedAt": "2026-07-02T08:12:57.249Z"
 }
