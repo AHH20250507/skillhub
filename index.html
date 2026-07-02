@@ -262,25 +262,15 @@
     <h1 class="page-title md:text-[24px]">我的技能库</h1>
     <p class="page-subtitle md:text-[12px] mb-5">集中管理 Agent Skill</p>
 
+    <div class="meta-label mb-2">标签</div>
+    <div id="tagBar" class="flex flex-col gap-1"></div>
+  </aside>
+
+  <main class="py-2 md:py-0">
     <div class="relative mb-5">
       <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted)]"></i>
       <input id="searchInput" class="input pl-9" placeholder="搜索名称、简介、标签…" oninput="renderList()" />
     </div>
-
-    <div class="flex gap-2 mb-5">
-      <button class="btn flex-1 justify-center" onclick="reloadFromGitHub()">
-        <i data-lucide="refresh-cw" class="w-4 h-4"></i> 同步
-      </button>
-      <button class="btn flex-1 justify-center" onclick="openDataPanel()">
-        <i data-lucide="database" class="w-4 h-4"></i> 数据
-      </button>
-    </div>
-
-    <div class="meta-label mb-2">标签</div>
-    <div id="tagBar" class="flex flex-wrap gap-1.5 md:flex-col md:gap-1"></div>
-  </aside>
-
-  <main class="py-2 md:py-0">
     <div id="skillGrid" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4"></div>
     <div id="emptyState" class="empty-state hidden">
       <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[var(--bg-subtle)] mb-4 border border-[var(--border)]">
@@ -453,6 +443,40 @@
     <div class="divider"></div>
     <div class="text-xs text-[var(--muted)]">
       当前本地 Skill 数：<span id="dataCount" class="text-[var(--text)] font-semibold">0</span>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div id="confirmModal" class="modal-backdrop hidden" onclick="if(event.target===this)resolveConfirm(false)">
+  <div class="modal" style="max-width:400px">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="avatar" style="width:36px;height:36px;border-radius:10px;background:rgba(255,59,48,0.08);color:var(--danger);font-size:16px">
+        <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+      </div>
+      <div class="font-semibold text-[16px]">确认操作</div>
+    </div>
+    <p id="confirmMsg" class="text-sm text-[var(--text-2)] leading-relaxed mb-5"></p>
+    <div class="flex justify-end gap-2">
+      <button class="btn" onclick="resolveConfirm(false)">取消</button>
+      <button id="confirmOkBtn" class="btn btn-danger" onclick="resolveConfirm(true)">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- Prompt Modal -->
+<div id="promptModal" class="modal-backdrop hidden" onclick="if(event.target===this)resolvePrompt(null)">
+  <div class="modal" style="max-width:400px">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="avatar" style="width:36px;height:36px;border-radius:10px;font-size:16px">
+        <i data-lucide="message-square" class="w-5 h-5"></i>
+      </div>
+      <div id="promptTitle" class="font-semibold text-[16px]">请输入</div>
+    </div>
+    <input id="promptInput" class="input mb-5" placeholder="" onkeydown="if(event.key==='Enter'){event.preventDefault();resolvePrompt(this.value)}" />
+    <div class="flex justify-end gap-2">
+      <button class="btn" onclick="resolvePrompt(null)">取消</button>
+      <button class="btn btn-primary" onclick="resolvePrompt(document.getElementById('promptInput').value)">确定</button>
     </div>
   </div>
 </div>
@@ -688,6 +712,35 @@ function toast(msg, type = '') {
     el.style.transform = 'scale(0.96) translateY(-4px)';
   }, 2200);
   setTimeout(() => el.remove(), 2600);
+}
+
+/* =========================================================
+ *  自定义 confirm / prompt（替代原生弹窗）
+ * ========================================================= */
+let _confirmResolve = null;
+let _promptResolve = null;
+function customConfirm(msg) {
+  document.getElementById('confirmMsg').textContent = msg;
+  document.getElementById('confirmModal').classList.remove('hidden');
+  lucide.createIcons();
+  return new Promise(resolve => { _confirmResolve = resolve; });
+}
+function resolveConfirm(val) {
+  document.getElementById('confirmModal').classList.add('hidden');
+  if (_confirmResolve) { _confirmResolve(val); _confirmResolve = null; }
+}
+function customPrompt(title, placeholder) {
+  document.getElementById('promptTitle').textContent = title || '请输入';
+  const inp = document.getElementById('promptInput');
+  inp.value = ''; inp.placeholder = placeholder || '';
+  document.getElementById('promptModal').classList.remove('hidden');
+  lucide.createIcons();
+  setTimeout(() => inp.focus(), 120);
+  return new Promise(resolve => { _promptResolve = resolve; });
+}
+function resolvePrompt(val) {
+  document.getElementById('promptModal').classList.add('hidden');
+  if (_promptResolve) { _promptResolve(val); _promptResolve = null; }
 }
 
 /* =========================================================
@@ -1145,6 +1198,7 @@ async function saveSkill() {
       for (const s of Object.values(cleaned.skills)) {
         for (const v of s.versions || []) delete v._localBlob;
       }
+      await loadMetadata(); /* 刷新 SHA 防过期 */
       await writeMetadata(cleaned, editingId ? `skill(${skill.id}): update` : `skill(${skill.id}): create`);
     }
     toast(editingId ? '已更新' : '已创建', 'success');
@@ -1163,8 +1217,8 @@ async function saveSkill() {
 /* =========================================================
  *  标签增删 / 版本增删 / Skill 删除
  * ========================================================= */
-function promptAddTag() {
-  const t = prompt('输入新标签（不含 #）：');
+async function promptAddTag() {
+  const t = await customPrompt('输入新标签', '不含 # 号');
   if (!t) return;
   const s = state.skills[viewingId];
   if (!s) return;
@@ -1192,7 +1246,7 @@ async function addVersionTo(id) {
     const f = fileInput.files[0];
     if (!f) return;
     const ver = nextBuildVersion(s.versions);
-    const changelog = prompt(`新版本 ${ver} 的变更说明（可留空）：`, '') || '';
+    const changelog = await customPrompt(`新版本 ${ver} 的变更说明`, '可留空') || '';
     try {
       if (cfg.repo && cfg.token) {
         toast('上传中…');
@@ -1224,7 +1278,8 @@ async function addVersionTo(id) {
 async function deleteVersion(ver) {
   const s = state.skills[viewingId];
   if (!s) return;
-  if (!confirm(`确定删除版本 ${ver}？文件将从 GitHub 移除，不可恢复。`)) return;
+  const ok = await customConfirm(`确定删除版本 ${ver}？文件将从 GitHub 移除，不可恢复。`);
+  if (!ok) return;
   const v = s.versions.find(x => x.version === ver);
   if (!v) return;
   try {
@@ -1244,7 +1299,8 @@ async function deleteVersion(ver) {
   } catch (e) { toast('删除失败：' + e.message, 'error'); }
 }
 async function deleteSkill(id) {
-  if (!confirm(`确定删除 Skill「${state.skills[id].name}」？所有版本文件将被移除。`)) return;
+  const ok = await customConfirm(`确定删除 Skill「${state.skills[id].name}」？所有版本文件将被移除。`);
+  if (!ok) return;
   const s = state.skills[id];
   try {
     if (cfg.repo && cfg.token) {
@@ -1266,6 +1322,8 @@ async function deleteSkill(id) {
 async function pushMetadata(msg) {
   if (!cfg.repo || !cfg.token) return;
   try {
+    /* 先刷新 remoteMetaSha，防止并发写入 SHA 过期 */
+    await loadMetadata();
     const meta = JSON.parse(JSON.stringify({ skills: state.skills, updatedAt: new Date().toISOString() }));
     for (const s of Object.values(meta.skills)) for (const v of s.versions || []) delete v._localBlob;
     await writeMetadata(meta, msg);
@@ -1360,15 +1418,17 @@ function importJSON(ev) {
 }
 async function pushAllToGitHub() {
   if (!cfg.repo || !cfg.token) { toast('请先配置 GitHub', 'error'); return; }
-  if (!confirm('将本地所有 Skill 元数据推送到 GitHub？')) return;
+  const ok = await customConfirm('将本地所有 Skill 元数据推送到 GitHub？');
+  if (!ok) return;
   try {
     toast('推送中…');
     await pushMetadata('skill-hub: sync from local');
     toast('推送完成', 'success');
   } catch (e) { toast('推送失败：' + e.message, 'error'); }
 }
-function clearLocal() {
-  if (!confirm('清空本地缓存？此操作不可恢复。')) return;
+async function clearLocal() {
+  const ok = await customConfirm('清空本地缓存？此操作不可恢复。');
+  if (!ok) return;
   state = { skills: {} }; saveLocal();
   renderList();
   toast('本地已清空', 'success');
@@ -1379,7 +1439,9 @@ function clearLocal() {
  * ========================================================= */
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
-  if (!document.getElementById('skillModal').classList.contains('hidden')) closeSkillModal();
+  if (!document.getElementById('confirmModal').classList.contains('hidden')) resolveConfirm(false);
+  else if (!document.getElementById('promptModal').classList.contains('hidden')) resolvePrompt(null);
+  else if (!document.getElementById('skillModal').classList.contains('hidden')) closeSkillModal();
   else if (!document.getElementById('detailModal').classList.contains('hidden')) closeDetail();
   else if (!document.getElementById('settingsModal').classList.contains('hidden')) closeSettings();
   else if (!document.getElementById('dataModal').classList.contains('hidden')) closeDataPanel();
