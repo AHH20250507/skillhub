@@ -128,11 +128,23 @@
   }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   .modal {
-    width: 100%; max-width: 640px; max-height: 90vh; overflow-y: auto;
-    border-radius: 18px; padding: 24px;
+    width: 100%; max-width: 640px; max-height: 90vh;
+    display: flex; flex-direction: column;
+    border-radius: 18px; padding: 0;
     background: #fff;
     box-shadow: 0 24px 64px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.04);
     animation: modalIn .25s cubic-bezier(.2,.8,.2,1);
+  }
+  .modal-header {
+    position: sticky; top: 0; z-index: 2;
+    padding: 20px 24px 12px;
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    box-shadow: 0 4px 16px -4px rgba(0,0,0,0.06);
+  }
+  .modal-body {
+    flex: 1; overflow-y: auto; padding: 20px 24px 24px;
   }
   @keyframes modalIn {
     from { opacity: 0; transform: translateY(8px) scale(0.98); }
@@ -285,10 +297,11 @@
 <!-- Settings Modal -->
 <div id="settingsModal" class="modal-backdrop hidden" onclick="if(event.target===this)closeSettings()">
   <div class="modal">
-    <div class="flex items-center justify-between mb-4">
+    <div class="modal-header flex items-center justify-between">
       <h3 class="text-xl font-semibold">GitHub 连接</h3>
       <button class="btn btn-ghost" onclick="closeSettings()"><i data-lucide="x" class="w-4 h-4"></i></button>
     </div>
+    <div class="modal-body">
     <p class="text-sm text-[var(--text-2)] mb-5 leading-relaxed">
       所有 Skill 元数据与 ZIP 文件都存储在 GitHub 仓库中。
       写入操作需要具有 <span class="kbd">repo</span> 权限的 Personal Access Token。
@@ -320,16 +333,18 @@
       </button>
       <button class="btn btn-primary" onclick="saveSettings()">保存</button>
     </div>
+    </div><!-- /modal-body -->
   </div>
 </div>
 
 <!-- Add/Edit Skill Modal -->
 <div id="skillModal" class="modal-backdrop hidden" onclick="if(event.target===this)closeSkillModal()">
   <div class="modal">
-    <div class="flex items-center justify-between mb-4">
+    <div class="modal-header flex items-center justify-between">
       <h3 id="skillModalTitle" class="text-xl font-semibold">新建 Skill</h3>
       <button class="btn btn-ghost" onclick="closeSkillModal()"><i data-lucide="x" class="w-4 h-4"></i></button>
     </div>
+    <div class="modal-body">
 
     <!-- Step 1: ZIP upload (auto-parses SKILL.md) -->
     <div class="glass p-4 mb-4">
@@ -379,11 +394,16 @@
         </div>
         <div>
           <label class="meta-label mb-1.5 block flex items-center justify-between">
-            <span>标签（回车添加）</span>
+            <span>标签</span>
             <span id="tagHint" class="text-[10px] normal-case tracking-normal text-[var(--muted)]"></span>
           </label>
-          <input id="f_tagInput" class="input" placeholder="例如：效率 / 写作"
-                 onkeydown="if(event.key==='Enter'){event.preventDefault();addTag()}"/>
+          <div class="flex gap-2">
+            <input id="f_tagInput" class="input flex-1" placeholder="输入标签后回车或点 +"
+                   onkeydown="if(event.key==='Enter'){event.preventDefault();addTag()}"/>
+            <button type="button" class="btn btn-primary" style="padding:7px 12px" onclick="addTag()">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+            </button>
+          </div>
         </div>
       </div>
       <div id="f_tagList" class="flex flex-wrap gap-1.5 min-h-[28px] items-center">
@@ -405,23 +425,26 @@
         <i data-lucide="upload-cloud" class="w-4 h-4"></i> 保存并上传
       </button>
     </div>
+    </div><!-- /modal-body -->
   </div>
 </div>
 
 <!-- Detail Modal -->
 <div id="detailModal" class="modal-backdrop hidden" onclick="if(event.target===this)closeDetail()">
   <div class="modal" style="max-width: 780px">
-    <div id="detailBody"></div>
+    <div id="detailHeader" class="modal-header"></div>
+    <div id="detailBody" class="modal-body"></div>
   </div>
 </div>
 
 <!-- Data Panel Modal -->
 <div id="dataModal" class="modal-backdrop hidden" onclick="if(event.target===this)closeDataPanel()">
   <div class="modal">
-    <div class="flex items-center justify-between mb-4">
+    <div class="modal-header flex items-center justify-between">
       <h3 class="text-xl font-semibold">数据管理</h3>
       <button class="btn btn-ghost" onclick="closeDataPanel()"><i data-lucide="x" class="w-4 h-4"></i></button>
     </div>
+    <div class="modal-body">
     <p class="text-sm text-[var(--text-2)] mb-5 leading-relaxed">
       本地缓存与 GitHub 之间的数据同步。适合首次初始化或离线编辑后迁移。
     </p>
@@ -444,12 +467,14 @@
     <div class="text-xs text-[var(--muted)]">
       当前本地 Skill 数：<span id="dataCount" class="text-[var(--text)] font-semibold">0</span>
     </div>
+    </div><!-- /modal-body -->
   </div>
 </div>
 
 <!-- Confirm Modal -->
 <div id="confirmModal" class="modal-backdrop hidden" onclick="if(event.target===this)resolveConfirm(false)">
   <div class="modal" style="max-width:400px">
+    <div class="modal-body">
     <div class="flex items-center gap-3 mb-4">
       <div class="avatar" style="width:36px;height:36px;border-radius:10px;background:rgba(255,59,48,0.08);color:var(--danger);font-size:16px">
         <i data-lucide="alert-triangle" class="w-5 h-5"></i>
@@ -461,12 +486,14 @@
       <button class="btn" onclick="resolveConfirm(false)">取消</button>
       <button id="confirmOkBtn" class="btn btn-danger" onclick="resolveConfirm(true)">确定</button>
     </div>
+    </div>
   </div>
 </div>
 
 <!-- Prompt Modal -->
 <div id="promptModal" class="modal-backdrop hidden" onclick="if(event.target===this)resolvePrompt(null)">
   <div class="modal" style="max-width:400px">
+    <div class="modal-body">
     <div class="flex items-center gap-3 mb-4">
       <div class="avatar" style="width:36px;height:36px;border-radius:10px;font-size:16px">
         <i data-lucide="message-square" class="w-5 h-5"></i>
@@ -478,6 +505,7 @@
       <button class="btn" onclick="resolvePrompt(null)">取消</button>
       <button class="btn btn-primary" onclick="resolvePrompt(document.getElementById('promptInput').value)">确定</button>
     </div>
+    </div><!-- /modal-body -->
   </div>
 </div>
 
@@ -594,9 +622,21 @@ async function loadMetadata() {
 }
 async function writeMetadata(meta, message) {
   const b64 = stringToBase64(JSON.stringify(meta, null, 2));
-  const result = await ghPut('metadata.json', b64, message, remoteMetaSha);
-  remoteMetaSha = result.content.sha;
-  return result;
+  try {
+    const result = await ghPut('metadata.json', b64, message, remoteMetaSha);
+    remoteMetaSha = result.content.sha;
+    return result;
+  } catch (e) {
+    /* SHA 过期时自动刷新并重试一次 */
+    if (/does not match/i.test(e.message)) {
+      const fresh = await ghGet('metadata.json');
+      if (fresh) remoteMetaSha = fresh.sha;
+      const result = await ghPut('metadata.json', b64, message, remoteMetaSha);
+      remoteMetaSha = result.content.sha;
+      return result;
+    }
+    throw e;
+  }
 }
 
 async function syncFromGitHub() {
@@ -609,7 +649,7 @@ async function syncFromGitHub() {
     }
     const merged = { ...state.skills };
     for (const id of Object.keys(meta.skills)) merged[id] = meta.skills[id];
-    state.skills = merged;
+    state.skills = normalizeVersions(merged);
     saveLocal();
     renderList();
     toast('已从 GitHub 同步', 'success');
@@ -679,19 +719,30 @@ function sizeHuman(bytes) {
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
   return (bytes / 1024 / 1024).toFixed(2) + ' MB';
 }
-/** 生成安装指令：3 行元数据 + 1 行 curl，agent 拿到 URL 就能自动下载安装 */
+/** 把非 YYYYMMDD 格式的版本号替换为基于日期的格式 */
+function normalizeVersions(skills) {
+  const verRe = /^\d{8}(-\d+)?$/;
+  for (const s of Object.values(skills)) {
+    if (!s.versions) continue;
+    for (const v of s.versions) {
+      if (v.version && !verRe.test(v.version)) {
+        /* 用版本的 date 字段或当前日期生成 YYYYMMDD */
+        const d = v.date ? new Date(v.date) : new Date();
+        const p = n => String(n).padStart(2, '0');
+        v.version = `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}`;
+      }
+    }
+  }
+  return skills;
+}
+/** 生成安装指令：一行 curl，agent 拿到即可自动下载安装 */
 function buildInstallCmd(skill, version) {
   const root = (cfg.root || 'skills').replace(/^\/+|\/+$/g, '');
   const zipPath = `${root}/${skill.id}/${version.file}`;
   const url = cfg.repo
     ? `https://raw.githubusercontent.com/${cfg.repo}/${cfg.branch}/${zipPath}`
     : version.file;
-  return [
-    `# Skill: ${skill.name}  |  Version: ${version.version}  |  ID: ${skill.id}`,
-    `# ${skill.description || ''}`,
-    `# Install:`,
-    `curl -fsSL "${url}" -o skill.zip && unzip -o skill.zip && rm skill.zip`,
-  ].join('\n');
+  return `curl -fsSL "${url}" -o /tmp/skill.zip && unzip -o /tmp/skill.zip -d ~/.qoderworkcn/skills/${skill.id} && rm /tmp/skill.zip`;
 }
 
 /* =========================================================
@@ -845,30 +896,31 @@ function openDetail(id) {
     ? `<div class="text-sm text-[var(--muted)]">暂无版本，编辑添加一个 ZIP 包</div>`
     : versions.map(v => versionRow(v)).join('');
 
-  document.getElementById('detailBody').innerHTML = `
-    <div class="flex items-start gap-4 mb-4">
-      <div class="avatar text-2xl" style="width:56px;height:56px;border-radius:14px">${escape((s.name||'?').slice(0,1))}</div>
+  document.getElementById('detailHeader').innerHTML = `
+    <div class="flex items-center gap-3">
+      <div class="avatar text-xl" style="width:40px;height:40px;border-radius:10px;flex-shrink:0">${escape((s.name||'?').slice(0,1))}</div>
       <div class="min-w-0 flex-1">
         <div class="flex items-center gap-2 flex-wrap">
-          <h3 class="text-[22px] font-semibold">${escape(s.name)}</h3>
+          <h3 class="text-[18px] font-semibold truncate">${escape(s.name)}</h3>
           <span class="badge mono">v${escape(versions[0]?.version || '-')}</span>
         </div>
-        <div class="text-xs text-[var(--muted)] mono mt-0.5">${escape(s.id)}</div>
-        <div class="text-xs text-[var(--text-2)] mt-1">更新于 ${formatDate(s.updatedAt)}</div>
+        <div class="text-xs text-[var(--muted)] mono">${escape(s.id)}</div>
       </div>
-      <div class="flex gap-1.5">
+      <div class="flex gap-1.5 flex-shrink-0">
         <button class="btn btn-ghost" onclick="editSkill('${escape(s.id)}')" title="编辑"><i data-lucide="pencil" class="w-4 h-4"></i></button>
         <button class="btn btn-ghost" onclick="deleteSkill('${escape(s.id)}')" title="删除" style="color:var(--danger)"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
         <button class="btn btn-ghost" onclick="closeDetail()"><i data-lucide="x" class="w-4 h-4"></i></button>
       </div>
     </div>
+  `;
+  document.getElementById('detailBody').innerHTML = `
     <p class="text-sm text-[var(--text-2)] leading-relaxed">${escape(s.description || '')}</p>
-    <div class="mt-4 flex flex-wrap gap-1.5 items-center">
+    <div class="mt-3 flex flex-wrap gap-1.5 items-center">
       ${tags || '<span class="text-xs text-[var(--muted)]">无标签</span>'}
       <span class="chip" style="background:rgba(60,60,67,0.05);color:var(--accent);border-color:var(--border);cursor:pointer" onclick="promptAddTag()">+ 添加</span>
     </div>
     ${s.notes ? `
-      <div class="mt-4 p-3 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border)]">
+      <div class="mt-3 p-3 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border)]">
         <div class="meta-label mb-1.5 flex items-center gap-1"><i data-lucide="sticky-note" class="w-3 h-3"></i> 备注</div>
         <div class="text-sm text-[var(--text-2)] whitespace-pre-wrap leading-relaxed">${escape(s.notes)}</div>
       </div>` : ''}
@@ -1098,7 +1150,8 @@ function applyParsedMeta(meta) {
     if (/^[a-z0-9-]+$/.test(rootDir)) setIf('f_id', rootDir);
   }
   setIf('f_desc', meta.description);
-  if (meta.version) setIf('f_version', meta.version);
+  /* 只接受 YYYYMMDD 格式版本号，忽略语义版本如 2.0.0 */
+  if (meta.version && /^\d{8}(-\d+)?$/.test(meta.version)) setIf('f_version', meta.version);
   // tags: string | array | comma-separated
   let tags = [];
   if (Array.isArray(meta.tags)) tags = meta.tags;
@@ -1128,6 +1181,7 @@ async function saveSkill() {
   let id = slugify(document.getElementById('f_id').value.trim());
   const desc = document.getElementById('f_desc').value.trim();
   const notes = document.getElementById('f_notes').value.trim();
+  addTag(); /* 把输入框残留文字也加为标签 */
   const tags = currentTagsInModal();
   const zipFile = document.getElementById('f_zip').files[0];
   let verStr = document.getElementById('f_version').value.trim();
@@ -1198,7 +1252,6 @@ async function saveSkill() {
       for (const s of Object.values(cleaned.skills)) {
         for (const v of s.versions || []) delete v._localBlob;
       }
-      await loadMetadata(); /* 刷新 SHA 防过期 */
       await writeMetadata(cleaned, editingId ? `skill(${skill.id}): update` : `skill(${skill.id}): create`);
     }
     toast(editingId ? '已更新' : '已创建', 'success');
@@ -1322,8 +1375,6 @@ async function deleteSkill(id) {
 async function pushMetadata(msg) {
   if (!cfg.repo || !cfg.token) return;
   try {
-    /* 先刷新 remoteMetaSha，防止并发写入 SHA 过期 */
-    await loadMetadata();
     const meta = JSON.parse(JSON.stringify({ skills: state.skills, updatedAt: new Date().toISOString() }));
     for (const s of Object.values(meta.skills)) for (const v of s.versions || []) delete v._localBlob;
     await writeMetadata(meta, msg);
