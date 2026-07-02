@@ -622,21 +622,31 @@ async function loadMetadata() {
 }
 async function writeMetadata(meta, message) {
   const b64 = stringToBase64(JSON.stringify(meta, null, 2));
-  try {
-    const result = await ghPut('metadata.json', b64, message, remoteMetaSha);
-    remoteMetaSha = result.content.sha;
-    return result;
-  } catch (e) {
-    /* SHA 过期时自动刷新并重试一次 */
-    if (/does not match/i.test(e.message)) {
-      const fresh = await ghGet('metadata.json');
-      if (fresh) remoteMetaSha = fresh.sha;
+  let lastErr = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
       const result = await ghPut('metadata.json', b64, message, remoteMetaSha);
       remoteMetaSha = result.content.sha;
       return result;
+    } catch (e) {
+      lastErr = e;
+      if (!/does not match/i.test(e.message)) throw e;
+      /* 从错误信息中直接提取当前 SHA，避免额外 API 调用 */
+      const shaMatch = /does not match\s+([0-9a-f]{40})/i.exec(e.message);
+      if (shaMatch) {
+        remoteMetaSha = shaMatch[1];
+      } else {
+        /* 回退：通过 GET 获取最新 SHA */
+        try {
+          const fresh = await ghGet('metadata.json');
+          if (fresh && fresh.sha) remoteMetaSha = fresh.sha;
+        } catch (_) {}
+      }
+      /* 等待一小段时间再重试，防止竞态 */
+      if (attempt < 2) await new Promise(r => setTimeout(r, 500 * (attempt + 1)));
     }
-    throw e;
   }
+  throw lastErr;
 }
 
 async function syncFromGitHub() {
@@ -721,7 +731,7 @@ function sizeHuman(bytes) {
 }
 /** 把非 YYYYMMDD 格式的版本号替换为基于日期的格式 */
 function normalizeVersions(skills) {
-  const verRe = /^\d{8}(-\d+)?$/;
+  const verRe = /^20\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(-\d+)?$/;
   for (const s of Object.values(skills)) {
     if (!s.versions) continue;
     for (const v of s.versions) {
@@ -1151,7 +1161,7 @@ function applyParsedMeta(meta) {
   }
   setIf('f_desc', meta.description);
   /* 只接受 YYYYMMDD 格式版本号，忽略语义版本如 2.0.0 */
-  if (meta.version && /^\d{8}(-\d+)?$/.test(meta.version)) setIf('f_version', meta.version);
+  if (meta.version && /^20\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(-\d+)?$/.test(meta.version)) setIf('f_version', meta.version);
   // tags: string | array | comma-separated
   let tags = [];
   if (Array.isArray(meta.tags)) tags = meta.tags;
@@ -1523,6 +1533,8 @@ const isLocalFile = location.protocol === 'file:';
 })();
 
 lucide.createIcons();
+state.skills = normalizeVersions(state.skills);
+saveLocal();
 renderList();
 if (isLocalFile) {
   toast('本地文件模式：仅使用浏览器缓存，建议部署到 GitHub Pages', 'warn');
