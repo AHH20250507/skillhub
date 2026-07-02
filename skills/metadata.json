@@ -59,7 +59,27 @@
       ],
       "createdAt": "2026-07-02T07:58:23.580Z",
       "updatedAt": "2026-07-02T07:58:23.580Z"
+    },
+    "feishu-ima-sync": {
+      "id": "feishu-ima-sync",
+      "name": "飞书-ima同步",
+      "description": "飞书文档自动同步到IMA知识库。支持检查文档更新、自动同步、邮件通知、文档管理。当用户提到飞书文档同步、知识库更新、IMA同步、检查飞书更新时触发。",
+      "notes": "qclaw",
+      "tags": [
+        "自动化"
+      ],
+      "versions": [
+        {
+          "version": "20260702",
+          "file": "feishu-ima-sync-20260702.zip",
+          "date": "2026-07-02T07:59:08.128Z",
+          "changelog": "",
+          "size": 2142634
+        }
+      ],
+      "createdAt": "2026-07-02T07:59:04.691Z",
+      "updatedAt": "2026-07-02T07:59:04.691Z"
     }
   },
-  "updatedAt": "2026-07-02T07:58:26.396Z"
+  "updatedAt": "2026-07-02T07:59:08.129Z"
 }
