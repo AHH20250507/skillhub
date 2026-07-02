@@ -1,23 +1,5 @@
 {
   "skills": {
-    "ai-daily-hot": {
-      "id": "ai-daily-hot",
-      "name": "ai daily hot",
-      "description": "AI HOT 日报自动化推送 — 从 aihot.virxact.com 拉取每日 AI 资讯，生成 Apple 风格 HTML 邮件推送。支持纯邮件或 GitHub Pages 两种输出方式。关键词：AI日报、AI早报、每日AI、邮件推送",
-      "notes": "",
-      "tags": [],
-      "versions": [
-        {
-          "version": "2.0.0",
-          "file": "ai-daily-hot-2.0.0.zip",
-          "date": "2026-07-02T07:24:29.876Z",
-          "changelog": "",
-          "size": 16734
-        }
-      ],
-      "createdAt": "2026-07-02T07:24:28.422Z",
-      "updatedAt": "2026-07-02T07:24:28.422Z"
-    },
     "sjtw": {
       "id": "sjtw",
       "name": "SJTW (WeChat Article Creator)",
@@ -37,5 +19,5 @@
       "updatedAt": "2026-07-02T07:28:49.222Z"
     }
   },
-  "updatedAt": "2026-07-02T07:28:51.703Z"
+  "updatedAt": "2026-07-02T07:41:44.536Z"
 }
