@@ -39,7 +39,27 @@
       ],
       "createdAt": "2026-07-02T07:57:45.005Z",
       "updatedAt": "2026-07-02T07:57:45.005Z"
+    },
+    "ep-guoyi": {
+      "id": "ep-guoyi",
+      "name": "epbox固定结尾",
+      "description": "Generate \\\"过壹招\\\" promotional HTML section for WeChat Official Account. Use when user provides phone recycling prices and asks to create the formatted HTML with phone trade-in calculation. Handles Excel file parsing, precise phone model matching, cross-sheet lookup, and standardized table styling.",
+      "notes": "trae",
+      "tags": [
+        "公众号推文"
+      ],
+      "versions": [
+        {
+          "version": "20260702",
+          "file": "ep-guoyi-20260702.zip",
+          "date": "2026-07-02T07:58:26.396Z",
+          "changelog": "",
+          "size": 9382
+        }
+      ],
+      "createdAt": "2026-07-02T07:58:23.580Z",
+      "updatedAt": "2026-07-02T07:58:23.580Z"
     }
   },
-  "updatedAt": "2026-07-02T07:57:46.207Z"
+  "updatedAt": "2026-07-02T07:58:26.396Z"
 }
