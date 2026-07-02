@@ -9,18 +9,10 @@
       "tags": [
         "自动化"
       ],
-      "versions": [
-        {
-          "version": "2.0.0",
-          "file": "ai-daily-hot-2.0.0.zip",
-          "date": "2026-07-02T05:48:45.794Z",
-          "changelog": "",
-          "size": 16734
-        }
-      ],
+      "versions": [],
       "createdAt": "2026-07-02T05:48:44.282Z",
-      "updatedAt": "2026-07-02T05:50:12.284Z"
+      "updatedAt": "2026-07-02T06:30:37.909Z"
     }
   },
-  "updatedAt": "2026-07-02T05:50:12.284Z"
+  "updatedAt": "2026-07-02T06:30:37.909Z"
 }
