@@ -1,25 +1,4 @@
 {
-  "skills": {
-    "sjtw": {
-      "id": "sjtw",
-      "name": "SJTW (WeChat Article Creator)",
-      "description": "description: Synthesizes a WeChat official account article from a given theme and URLs. Features an intro, curated ~100-word paragraphs with #006fff bold highlights, alternating images, and an outro.",
-      "notes": "",
-      "tags": [
-        "公众号推文"
-      ],
-      "versions": [
-        {
-          "version": "20260702",
-          "file": "sjtw-20260702.zip",
-          "date": "2026-07-02T07:28:51.703Z",
-          "changelog": "",
-          "size": 16329
-        }
-      ],
-      "createdAt": "2026-07-02T07:28:49.222Z",
-      "updatedAt": "2026-07-02T07:55:40.133Z"
-    }
-  },
-  "updatedAt": "2026-07-02T07:55:40.133Z"
+  "skills": {},
+  "updatedAt": "2026-07-02T07:55:50.148Z"
 }
