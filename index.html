@@ -7,6 +7,7 @@
 <meta name="description" content="基于 GitHub 托管的零后端 Skill 管理平台，一键安装到任意 Agent" />
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -323,20 +324,47 @@
       <h3 id="skillModalTitle" class="text-xl font-semibold">新建 Skill</h3>
       <button class="btn btn-ghost" onclick="closeSkillModal()"><i data-lucide="x" class="w-4 h-4"></i></button>
     </div>
+
+    <!-- Step 1: ZIP upload (auto-parses SKILL.md) -->
+    <div class="glass p-4 mb-4">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="avatar" style="width:28px;height:28px;border-radius:8px;font-size:13px">1</div>
+        <div class="text-sm font-semibold">上传 Skill ZIP 包</div>
+        <span id="parseStatus" class="text-xs text-[var(--muted)] ml-auto"></span>
+      </div>
+      <div class="text-xs text-[var(--text-2)] mb-3 leading-relaxed">
+        系统会自动读取 ZIP 中的 <span class="kbd">SKILL.md</span>，提取中文名称、简介、标签、版本号。其余字段可留空。
+      </div>
+      <div class="flex items-center gap-3 flex-wrap">
+        <div class="file-input-wrap">
+          <button class="btn btn-primary"><i data-lucide="upload-cloud" class="w-4 h-4"></i> 选择 ZIP</button>
+          <input id="f_zip" type="file" accept=".zip,application/zip" onchange="onZipSelected()" />
+        </div>
+        <div id="f_zipInfo" class="text-xs text-[var(--muted)] truncate flex-1"></div>
+      </div>
+    </div>
+
+    <!-- Step 2: Auto-filled metadata (all optional) -->
+    <div class="flex items-center gap-2 mb-2">
+      <div class="avatar" style="width:28px;height:28px;border-radius:8px;font-size:13px">2</div>
+      <div class="text-sm font-semibold">确认 / 微调信息</div>
+      <span class="text-xs text-[var(--muted)]">（全部可选，已从 ZIP 自动填充）</span>
+    </div>
+
     <div class="space-y-3">
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="meta-label mb-1.5 block">中文名称 *</label>
-          <input id="f_name" class="input" placeholder="例如：日报生成器" />
+          <label class="meta-label mb-1.5 block">中文名称</label>
+          <input id="f_name" class="input" placeholder="来自 SKILL.md name 或 ZIP 文件名" />
         </div>
         <div>
-          <label class="meta-label mb-1.5 block">技术 ID *</label>
-          <input id="f_id" class="input mono" placeholder="例如：daily-report" />
+          <label class="meta-label mb-1.5 block">技术 ID</label>
+          <input id="f_id" class="input mono" placeholder="小写英文 + 连字符" />
         </div>
       </div>
       <div>
-        <label class="meta-label mb-1.5 block">简介 *</label>
-        <textarea id="f_desc" class="textarea" placeholder="一句话说明这个 Skill 做什么、什么时候使用"></textarea>
+        <label class="meta-label mb-1.5 block">简介</label>
+        <textarea id="f_desc" class="textarea" placeholder="来自 SKILL.md description"></textarea>
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div>
@@ -344,17 +372,18 @@
           <input id="f_author" class="input" placeholder="例如：AHH" />
         </div>
         <div>
-          <label class="meta-label mb-1.5 block flex items-center justify-between">
-            <span>标签（回车添加）</span>
-            <span id="tagHint" class="text-[10px] normal-case tracking-normal"></span>
-          </label>
-          <input id="f_tagInput" class="input" placeholder="例如：效率 / 写作"
-                 onkeydown="if(event.key==='Enter'){event.preventDefault();addTag()}"/>
+          <label class="meta-label mb-1.5 block">版本号</label>
+          <input id="f_version" class="input mono" placeholder="自动生成（YYYYMMDD.N）" />
         </div>
       </div>
       <div>
-        <label class="meta-label mb-1.5 block">已选标签</label>
-        <div id="f_tagList" class="flex flex-wrap gap-1.5 min-h-[28px] items-center">
+        <label class="meta-label mb-1.5 block flex items-center justify-between">
+          <span>标签（回车添加）</span>
+          <span id="tagHint" class="text-[10px] normal-case tracking-normal text-[var(--muted)]"></span>
+        </label>
+        <input id="f_tagInput" class="input" placeholder="例如：效率 / 写作"
+               onkeydown="if(event.key==='Enter'){event.preventDefault();addTag()}"/>
+        <div id="f_tagList" class="flex flex-wrap gap-1.5 min-h-[28px] items-center mt-2">
           <span class="text-xs text-[var(--muted)]">暂无</span>
         </div>
       </div>
@@ -362,31 +391,9 @@
         <label class="meta-label mb-1.5 block">自定义备注</label>
         <textarea id="f_notes" class="textarea" placeholder="仅自己可见的备忘录…"></textarea>
       </div>
-      <div id="versionBlock">
-        <div class="divider"></div>
-        <div class="flex items-center justify-between mb-2">
-          <div>
-            <div class="text-sm font-semibold">版本附件</div>
-            <div class="text-xs text-[var(--muted)] mt-0.5">每个 Skill 至少需要一个 ZIP 版本包</div>
-          </div>
-          <div id="nextVerHint" class="text-xs text-[var(--muted)] mono"></div>
-        </div>
-        <div class="glass p-3">
-          <div class="flex items-center gap-3 flex-wrap">
-            <div class="file-input-wrap">
-              <button class="btn"><i data-lucide="upload-cloud" class="w-4 h-4"></i> 选择 ZIP</button>
-              <input id="f_zip" type="file" accept=".zip,application/zip" onchange="onZipSelected()" />
-            </div>
-            <div id="f_zipInfo" class="text-xs text-[var(--muted)] truncate flex-1"></div>
-            <div class="flex items-center gap-2">
-              <span class="text-xs text-[var(--muted)]">版本号</span>
-              <input id="f_version" class="input mono" style="width:150px" placeholder="自动生成" />
-            </div>
-          </div>
-          <div class="mt-2">
-            <input id="f_changelog" class="input" placeholder="版本说明（可选）" />
-          </div>
-        </div>
+      <div>
+        <label class="meta-label mb-1.5 block">版本说明</label>
+        <input id="f_changelog" class="input" placeholder="本次版本的变更说明（可选）" />
       </div>
     </div>
     <div class="divider"></div>
@@ -882,9 +889,130 @@ function onZipSelected() {
   const f = document.getElementById('f_zip').files[0];
   if (!f) return;
   document.getElementById('f_zipInfo').textContent = `${f.name} · ${sizeHuman(f.size)}`;
-  if (!document.getElementById('f_version').value) {
-    const s = editingId ? state.skills[editingId] : null;
-    document.getElementById('f_version').value = nextBuildVersion(s?.versions || []);
+  parseSkillZip(f);
+}
+
+/** 解析 ZIP 包，提取 SKILL.md frontmatter 并自动填充表单 */
+async function parseSkillZip(file) {
+  const status = document.getElementById('parseStatus');
+  status.innerHTML = '<i data-lucide="loader-2" class="w-3.5 h-3.5 spin inline"></i> 解析中…';
+  lucide.createIcons();
+  try {
+    const buf = await file.arrayBuffer();
+    const zip = await JSZip.loadAsync(buf);
+    const meta = await extractSkillMeta(zip, file.name);
+    applyParsedMeta(meta);
+    status.innerHTML = `<span class="text-[var(--success)]">✓ 已解析 ${meta._source}</span>`;
+  } catch (e) {
+    status.innerHTML = `<span class="text-[var(--warn)]">⚠ ${e.message || '解析失败'}</span>`;
+  }
+}
+
+/** 在 ZIP 中找到 SKILL.md 并解析 frontmatter + 首个标题 */
+async function extractSkillMeta(zip, zipFileName) {
+  // 优先找根目录的 SKILL.md，其次找 */SKILL.md
+  let entry = zip.file(/^SKILL\.md$/i)[0]
+    || zip.file(/(^|\/)SKILL\.md$/i)[0];
+  if (!entry) {
+    return { _source: zipFileName.replace(/\.zip$/i, '') };
+  }
+  const text = await entry.async('string');
+  const fm = parseFrontmatter(text);
+  fm._source = entry.name;
+  fm._rawText = text;
+  // 若没有 name/description，从正文首个 # 标题或首段推导
+  if (!fm.name) {
+    const titleM = text.replace(/^---[\s\S]*?---\s*/, '').match(/^#\s+(.+)$/m);
+    if (titleM) fm.name = titleM[1].trim();
+  }
+  if (!fm.description) {
+    const body = text.replace(/^---[\s\S]*?---\s*/, '').replace(/^#\s+.+$/m, '').trim();
+    const firstPara = body.split(/\n\s*\n/)[0] || '';
+    const cleaned = firstPara.replace(/^#+\s+.+$/gm, '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').trim();
+    if (cleaned) fm.description = cleaned.slice(0, 200);
+  }
+  return fm;
+}
+
+/** 极简 YAML frontmatter 解析（支持 string / list / 单行流式数组） */
+function parseFrontmatter(md) {
+  const m = /^---\s*\r?\n([\s\S]*?)\r?\n---/.exec(md);
+  if (!m) return {};
+  const yaml = m[1];
+  const result = {};
+  const lines = yaml.split(/\r?\n/);
+  let currentKey = null;
+  for (let raw of lines) {
+    const line = raw.replace(/\t/g, '  ');
+    if (!line.trim() || line.trim().startsWith('#')) continue;
+    // list item (e.g. "  - foo")
+    const listMatch = /^\s+-\s+(.+)$/.exec(line);
+    if (listMatch && currentKey) {
+      if (!Array.isArray(result[currentKey])) result[currentKey] = [];
+      result[currentKey].push(listMatch[1].trim().replace(/^['"]|['"]$/g, ''));
+      continue;
+    }
+    // key: value
+    const kv = /^([A-Za-z_][\w-]*)\s*:\s*(.*)$/.exec(line);
+    if (!kv) continue;
+    const key = kv[1];
+    let val = kv[2].trim();
+    currentKey = key;
+    if (!val) { result[key] = []; continue; } // next lines are list
+    // strip quotes
+    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+      val = val.slice(1, -1);
+    }
+    // inline array: [a, b, c]
+    if (val.startsWith('[') && val.endsWith(']')) {
+      val = val.slice(1, -1).split(',').map(s => s.trim().replace(/^['"]|['"]$/g, '')).filter(Boolean);
+    }
+    result[key] = val;
+  }
+  return result;
+}
+
+/** 把解析到的 frontmatter 应用到表单（仅填充空字段，用户已输入的保留） */
+function applyParsedMeta(meta) {
+  const setIf = (id, val) => {
+    if (val == null) return;
+    const el = document.getElementById(id);
+    if (!el || el.value.trim()) return; // 用户已输入则保留
+    el.value = String(val);
+  };
+  // name → 中文名称（若是英文 slug 则用作 id 而非 name）
+  const rawName = meta.name || '';
+  const looksLikeSlug = /^[a-z0-9-]+$/.test(rawName);
+  if (rawName) {
+    if (looksLikeSlug) setIf('f_id', rawName);
+    else setIf('f_name', rawName);
+  }
+  // 若 ZIP 根目录名也是 slug 风格，可作 id 兜底
+  if (meta._source) {
+    const rootDir = meta._source.split('/')[0];
+    if (/^[a-z0-9-]+$/.test(rootDir)) setIf('f_id', rootDir);
+  }
+  setIf('f_desc', meta.description);
+  setIf('f_author', meta.author);
+  if (meta.version) setIf('f_version', meta.version);
+  // tags: string | array | comma-separated
+  let tags = [];
+  if (Array.isArray(meta.tags)) tags = meta.tags;
+  else if (typeof meta.tags === 'string') {
+    tags = meta.tags.split(/[,，、]/).map(s => s.trim()).filter(Boolean);
+  }
+  if (tags.length) {
+    const tagList = document.getElementById('f_tagList');
+    // 清空 "暂无" 占位
+    if (tagList.querySelector('.text-xs')) tagList.innerHTML = '';
+    const existing = currentTagsInModal();
+    tags.forEach(t => {
+      if (existing.includes(t)) return;
+      const chip = document.createElement('span');
+      chip.className = 'chip';
+      chip.innerHTML = `#${escape(t)}<span class="chip-close" onclick="this.parentElement.remove()">×</span>`;
+      tagList.appendChild(chip);
+    });
   }
 }
 function currentTagsInModal() {
@@ -902,15 +1030,22 @@ async function saveSkill() {
   let verStr = document.getElementById('f_version').value.trim();
   const changelog = document.getElementById('f_changelog').value.trim();
 
-  if (!name || !desc) { toast('请填写名称与简介', 'error'); return; }
-  if (!editingId && !id) id = slugify(name) || 'skill-' + Date.now();
-  if (!editingId && state.skills[id]) { toast('技术 ID 已存在', 'error'); return; }
+  // 兜底：未填的字段用自动推导值
+  if (!id) {
+    if (zipFile) id = slugify(zipFile.name.replace(/\.zip$/i, '')) || 'skill-' + Date.now();
+    else if (name) id = slugify(name) || 'skill-' + Date.now();
+    else id = 'skill-' + Date.now();
+  }
+  const finalName = name || id.split('-').join(' ');
+  const finalDesc = desc || '（暂无简介）';
+
+  if (!editingId && state.skills[id]) { toast('技术 ID "' + id + '" 已存在', 'error'); return; }
 
   let skill = editingId ? { ...state.skills[editingId] } : {
-    id, name, description: desc, author, notes, tags,
+    id, name: finalName, description: finalDesc, author, notes, tags,
     versions: [], createdAt: new Date().toISOString()
   };
-  skill.name = name; skill.description = desc; skill.author = author;
+  skill.name = finalName; skill.description = finalDesc; skill.author = author;
   skill.notes = notes; skill.tags = tags;
   skill.updatedAt = new Date().toISOString();
 
