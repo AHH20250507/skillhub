@@ -19,7 +19,27 @@
       ],
       "createdAt": "2026-07-02T07:57:17.263Z",
       "updatedAt": "2026-07-02T07:57:17.263Z"
+    },
+    "bhtw": {
+      "id": "bhtw",
+      "name": "编号推文",
+      "description": "Synthesizes a WeChat Official Account article based on a specific theme (e.g., product launch) and reference URLs. Extracts content, organizes it into logical point-by-point feature introductions (e.g., by individual products for launches, or by upgraded features for leak articles), embeds relevant authentic images from the references, and outputs locally saved HTML files matching precise WeChat layout constraints (Blue/Green styles, number headers, zero-margins, 1.0/2.0 spacing). Use when a user provides a topic and links and wants to generate a WeChat push article with a layout.",
+      "notes": "谷歌反重力",
+      "tags": [
+        "公众号推文"
+      ],
+      "versions": [
+        {
+          "version": "20260702",
+          "file": "bhtw-20260702.zip",
+          "date": "2026-07-02T07:57:46.207Z",
+          "changelog": "",
+          "size": 7777
+        }
+      ],
+      "createdAt": "2026-07-02T07:57:45.005Z",
+      "updatedAt": "2026-07-02T07:57:45.005Z"
     }
   },
-  "updatedAt": "2026-07-02T07:57:19.019Z"
+  "updatedAt": "2026-07-02T07:57:46.207Z"
 }
