@@ -197,7 +197,27 @@
       ],
       "createdAt": "2026-07-02T08:04:49.680Z",
       "updatedAt": "2026-07-02T08:04:49.680Z"
+    },
+    "zxtw": {
+      "id": "zxtw",
+      "name": "资讯推文",
+      "description": "A two-in-one skill that curates mobile tech news from links into specific WeChat article layouts (Blue and Green exact layouts), with ML-based watermark removal and CDN image hosting.",
+      "notes": "谷歌反重力",
+      "tags": [
+        "公众号推文"
+      ],
+      "versions": [
+        {
+          "version": "20260702",
+          "file": "zxtw-20260702.zip",
+          "date": "2026-07-02T08:05:35.545Z",
+          "changelog": "",
+          "size": 24178
+        }
+      ],
+      "createdAt": "2026-07-02T08:05:33.266Z",
+      "updatedAt": "2026-07-02T08:05:33.266Z"
     }
   },
-  "updatedAt": "2026-07-02T08:04:51.324Z"
+  "updatedAt": "2026-07-02T08:05:35.545Z"
 }
