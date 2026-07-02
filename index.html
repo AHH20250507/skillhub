@@ -84,14 +84,22 @@
   .chip-close { cursor: pointer; opacity: .55; font-size: 13px; line-height: 1; }
   .chip-close:hover { opacity: 1; }
   .tag-pill {
-    padding: 4px 11px; border-radius: 980px; font-size: 12px; font-weight: 500;
-    background: #fff; border: 1px solid var(--border); color: var(--text-2);
+    padding: 6px 12px; border-radius: 10px; font-size: 13px; font-weight: 500;
+    background: transparent; border: none; color: var(--text-2);
     cursor: pointer; transition: all .18s ease;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px;
   }
-  .tag-pill:hover { background: #f0f0f3; color: var(--text); }
+  .tag-pill:hover { background: #eef0f4; color: var(--text); }
   .tag-pill.active {
-    background: var(--accent); border-color: var(--accent); color: #fff;
+    background: var(--accent); color: #fff;
   }
+  .tag-count {
+    font-size: 11px; font-weight: 600;
+    padding: 1px 7px; border-radius: 980px;
+    background: rgba(60,60,67,0.08); color: var(--muted);
+  }
+  .tag-pill.active .tag-count { background: rgba(255,255,255,0.22); color: #fff; }
   .card {
     position: relative; border-radius: 18px; padding: 18px 20px;
     background: var(--bg-elev);
@@ -149,21 +157,26 @@
     font-size: 12px; white-space: pre-wrap; word-break: break-all;
     line-height: 1.65;
   }
-  .toast-wrap { position: fixed; top: 20px; right: 20px; z-index: 100; display: flex; flex-direction: column; gap: 10px; }
-  .toast {
-    padding: 11px 16px; border-radius: 12px; min-width: 220px; max-width: 360px;
-    background: #fff; border: 1px solid var(--border); color: var(--text);
-    font-size: 13px; animation: slideIn .28s cubic-bezier(.2,.8,.2,1);
-    display: flex; gap: 10px; align-items: flex-start;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-    font-weight: 500;
+  .toast-wrap {
+    position: fixed; inset: 0; z-index: 200;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 10px; pointer-events: none;
   }
-  .toast.success { border-left: 3px solid var(--success); }
-  .toast.error { border-left: 3px solid var(--danger); }
-  .toast.warn { border-left: 3px solid var(--warn); }
-  @keyframes slideIn {
-    from { transform: translateX(24px); opacity: 0; }
-    to { transform: none; opacity: 1; }
+  .toast {
+    padding: 14px 22px; border-radius: 14px; min-width: 240px; max-width: 420px;
+    background: #fff; border: 1px solid var(--border); color: var(--text);
+    font-size: 14px; animation: toastPop .35s cubic-bezier(.2,.8,.2,1);
+    display: flex; gap: 10px; align-items: center;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.03);
+    font-weight: 500; letter-spacing: -0.005em; pointer-events: auto;
+  }
+  .toast.success .toast-icon { color: var(--success); }
+  .toast.error .toast-icon { color: var(--danger); }
+  .toast.warn .toast-icon { color: var(--warn); }
+  @keyframes toastPop {
+    0%   { transform: scale(0.92) translateY(8px); opacity: 0; }
+    60%  { transform: scale(1.02); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
   }
   .spin { animation: spin 1s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -221,9 +234,11 @@
 <header class="sticky top-0 z-40 nav">
   <div class="max-w-7xl mx-auto px-6 py-3.5 flex items-center gap-4">
     <div class="flex items-center gap-2.5">
-      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
         <rect width="28" height="28" rx="7" fill="#0071e3"/>
-        <path d="M8 14.5L12 18.5L20 10.5" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="7" y="7" width="14" height="14" rx="3" fill="#ffffff" fill-opacity="0.35"/>
+        <rect x="9.5" y="9.5" width="9" height="9" rx="2" fill="#ffffff" fill-opacity="0.7"/>
+        <rect x="12" y="12" width="4" height="4" rx="1" fill="#ffffff"/>
       </svg>
       <div class="leading-tight">
         <div class="font-semibold text-[15px] tracking-tight">Skill Hub</div>
@@ -241,40 +256,41 @@
   </div>
 </header>
 
-<!-- Hero / Toolbar -->
-<section class="max-w-7xl mx-auto px-6 pt-10 pb-3">
-  <h1 class="page-title">我的技能库</h1>
-  <p class="page-subtitle">集中管理你的 Agent Skill，一键分发到任意智能体</p>
+<!-- Hero / Toolbar (becomes sticky left sidebar on md+) -->
+<div class="max-w-7xl mx-auto px-6 pt-8 pb-3 md:grid md:grid-cols-[260px_1fr] md:gap-8">
+  <aside class="md:sticky md:top-24 md:self-start md:max-h-[calc(100vh-7rem)] md:overflow-y-auto scroll md:pr-2">
+    <h1 class="page-title md:text-[24px]">我的技能库</h1>
+    <p class="page-subtitle md:text-[12px] mb-5">集中管理 Agent Skill</p>
 
-  <div class="flex flex-col md:flex-row gap-3 md:items-center mt-6">
-    <div class="relative flex-1 max-w-md">
+    <div class="relative mb-5">
       <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted)]"></i>
       <input id="searchInput" class="input pl-9" placeholder="搜索名称、简介、标签…" oninput="renderList()" />
     </div>
-    <div class="flex gap-2 md:ml-auto">
-      <button class="btn" onclick="reloadFromGitHub()">
+
+    <div class="flex gap-2 mb-5">
+      <button class="btn flex-1 justify-center" onclick="reloadFromGitHub()">
         <i data-lucide="refresh-cw" class="w-4 h-4"></i> 同步
       </button>
-      <button class="btn" onclick="openDataPanel()">
+      <button class="btn flex-1 justify-center" onclick="openDataPanel()">
         <i data-lucide="database" class="w-4 h-4"></i> 数据
       </button>
     </div>
-  </div>
 
-  <div id="tagBar" class="flex flex-wrap gap-2 mt-4"></div>
-</section>
+    <div class="meta-label mb-2">标签</div>
+    <div id="tagBar" class="flex flex-wrap gap-1.5 md:flex-col md:gap-1"></div>
+  </aside>
 
-<!-- List -->
-<main class="max-w-7xl mx-auto px-6 py-5">
-  <div id="skillGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-  <div id="emptyState" class="empty-state hidden">
-    <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[var(--bg-subtle)] mb-4 border border-[var(--border)]">
-      <i data-lucide="package-open" class="w-7 h-7 text-[var(--muted)]"></i>
+  <main class="py-2 md:py-0">
+    <div id="skillGrid" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+    <div id="emptyState" class="empty-state hidden">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[var(--bg-subtle)] mb-4 border border-[var(--border)]">
+        <i data-lucide="package-open" class="w-7 h-7 text-[var(--muted)]"></i>
+      </div>
+      <div class="text-base font-semibold text-[var(--text)]">还没有任何 Skill</div>
+      <div class="text-sm mt-1.5 text-[var(--muted)]">点击右上角「新建 Skill」，上传你的第一个 ZIP 技能包</div>
     </div>
-    <div class="text-base font-semibold text-[var(--text)]">还没有任何 Skill</div>
-    <div class="text-sm mt-1.5 text-[var(--muted)]">点击右上角「新建 Skill」，上传你的第一个 ZIP 技能包</div>
-  </div>
-</main>
+  </main>
+</div>
 
 <!-- Settings Modal -->
 <div id="settingsModal" class="modal-backdrop hidden" onclick="if(event.target===this)closeSettings()">
@@ -368,24 +384,20 @@
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="meta-label mb-1.5 block">作者</label>
-          <input id="f_author" class="input" placeholder="例如：AHH" />
+          <label class="meta-label mb-1.5 block">版本号</label>
+          <input id="f_version" class="input mono" placeholder="自动生成（YYYYMMDD 或 -N）" />
         </div>
         <div>
-          <label class="meta-label mb-1.5 block">版本号</label>
-          <input id="f_version" class="input mono" placeholder="自动生成（YYYYMMDD.N）" />
+          <label class="meta-label mb-1.5 block flex items-center justify-between">
+            <span>标签（回车添加）</span>
+            <span id="tagHint" class="text-[10px] normal-case tracking-normal text-[var(--muted)]"></span>
+          </label>
+          <input id="f_tagInput" class="input" placeholder="例如：效率 / 写作"
+                 onkeydown="if(event.key==='Enter'){event.preventDefault();addTag()}"/>
         </div>
       </div>
-      <div>
-        <label class="meta-label mb-1.5 block flex items-center justify-between">
-          <span>标签（回车添加）</span>
-          <span id="tagHint" class="text-[10px] normal-case tracking-normal text-[var(--muted)]"></span>
-        </label>
-        <input id="f_tagInput" class="input" placeholder="例如：效率 / 写作"
-               onkeydown="if(event.key==='Enter'){event.preventDefault();addTag()}"/>
-        <div id="f_tagList" class="flex flex-wrap gap-1.5 min-h-[28px] items-center mt-2">
-          <span class="text-xs text-[var(--muted)]">暂无</span>
-        </div>
+      <div id="f_tagList" class="flex flex-wrap gap-1.5 min-h-[28px] items-center">
+        <span class="text-xs text-[var(--muted)]">暂无</span>
       </div>
       <div>
         <label class="meta-label mb-1.5 block">自定义备注</label>
@@ -553,7 +565,7 @@ async function loadMetadata() {
   const res = await ghGet('metadata.json');
   if (!res) return null;
   remoteMetaSha = res.sha;
-  try { return JSON.parse(atob(res.content)); }
+  try { return JSON.parse(base64ToUtf8(res.content)); }
   catch { return null; }
 }
 async function writeMetadata(meta, message) {
@@ -590,10 +602,18 @@ async function reloadFromGitHub() {
  *  工具函数
  * ========================================================= */
 function stringToBase64(str) {
+  // UTF-8 安全：中文等字符编码后再 base64
   const bytes = new TextEncoder().encode(str);
   let bin = '';
   for (const b of bytes) bin += String.fromCharCode(b);
   return btoa(bin);
+}
+function base64ToUtf8(b64) {
+  // 把 base64 解码为 UTF-8 字符串，避免 atob 导致的中文乱码
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder('utf-8').decode(bytes);
 }
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
@@ -613,14 +633,19 @@ function todayYMD() {
   const p = n => String(n).padStart(2, '0');
   return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}`;
 }
+/** 版本号：单日 = YYYYMMDD，同日多版本 = YYYYMMDD-1、-2 … */
 function nextBuildVersion(versions) {
   const today = todayYMD();
   let maxN = 0;
+  let hasPlain = false;
   for (const v of versions || []) {
-    const m = /^(\d{8})\.(\d+)$/.exec(v.version || '');
+    const ver = v.version || '';
+    if (ver === today) { hasPlain = true; continue; }
+    const m = /^(\d{8})-(\d+)$/.exec(ver);
     if (m && m[1] === today) maxN = Math.max(maxN, parseInt(m[2], 10));
   }
-  return `${today}.${maxN + 1}`;
+  if (!hasPlain && maxN === 0) return today;
+  return `${today}-${maxN + 1}`;
 }
 function slugify(s) {
   return (s || '').toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48);
@@ -630,61 +655,73 @@ function sizeHuman(bytes) {
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
   return (bytes / 1024 / 1024).toFixed(2) + ' MB';
 }
+/** 生成安装指令：3 行元数据 + 1 行 curl，agent 拿到 URL 就能自动下载安装 */
 function buildInstallCmd(skill, version) {
   const root = (cfg.root || 'skills').replace(/^\/+|\/+$/g, '');
   const zipPath = `${root}/${skill.id}/${version.file}`;
   const url = cfg.repo
-    ? `https://api.github.com/repos/${cfg.repo}/contents/${zipPath}?ref=${cfg.branch}`
+    ? `https://raw.githubusercontent.com/${cfg.repo}/${cfg.branch}/${zipPath}`
     : version.file;
-  const lines = [
-    `# 安装 Skill：${skill.name} v${version.version}`,
-    `# ${skill.description}`,
-    `# 把以下指令复制给任意 Agent 即可自动下载安装`,
-    ``,
-    `curl -fsSL -H "Accept: application/vnd.github.raw" \\`,
-    `  "${url}" -o skill.zip`,
-    `unzip -o skill.zip -d "${skill.id}"`,
-    `rm skill.zip`,
-    `# Agent 请把解压后的目录放到用户的 skills 目录：`,
-    `#   macOS/Linux: ~/.qoderworkcn/skills/${skill.id}`,
-    `#   Windows:     %USERPROFILE%\\.qoderworkcn\\skills\\${skill.id}`,
-  ];
-  return lines.join('\n');
+  return [
+    `# Skill: ${skill.name}  |  Version: ${version.version}  |  ID: ${skill.id}`,
+    `# ${skill.description || ''}`,
+    `# Install:`,
+    `curl -fsSL "${url}" -o skill.zip && unzip -o skill.zip && rm skill.zip`,
+  ].join('\n');
 }
 
 /* =========================================================
  *  Toast
  * ========================================================= */
 function toast(msg, type = '') {
+  const wrap = document.getElementById('toastWrap');
   const el = document.createElement('div');
   el.className = 'toast ' + type;
   const iconMap = { success: 'check-circle-2', error: 'alert-octagon', warn: 'alert-triangle' };
   const ic = iconMap[type] || 'info';
-  el.innerHTML = `<i data-lucide="${ic}" class="w-4 h-4 mt-0.5"></i><span>${msg}</span>`;
-  document.getElementById('toastWrap').appendChild(el);
+  el.innerHTML = `<i data-lucide="${ic}" class="toast-icon w-5 h-5"></i><span>${msg}</span>`;
+  wrap.appendChild(el);
   lucide.createIcons();
-  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; }, 2800);
-  setTimeout(() => el.remove(), 3200);
+  setTimeout(() => {
+    el.style.transition = 'opacity .35s ease, transform .35s ease';
+    el.style.opacity = '0';
+    el.style.transform = 'scale(0.96) translateY(-4px)';
+  }, 2200);
+  setTimeout(() => el.remove(), 2600);
 }
 
 /* =========================================================
  *  渲染：列表 / 卡片 / 标签条
  * ========================================================= */
 function allTags() {
-  const set = new Set();
-  for (const s of Object.values(state.skills)) (s.tags || []).forEach(t => set.add(t));
-  return [...set].sort();
+  const map = {};
+  for (const s of Object.values(state.skills)) {
+    (s.tags || []).forEach(t => { map[t] = (map[t] || 0) + 1; });
+  }
+  return Object.entries(map).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
 }
 function renderTagBar() {
   const tags = allTags();
   const bar = document.getElementById('tagBar');
-  if (tags.length === 0) { bar.innerHTML = ''; return; }
-  bar.innerHTML = tags.map(t => `
-    <span class="tag-pill ${activeTag === t ? 'active' : ''}" onclick="toggleTag('${escape(t)}')">#${escape(t)}</span>
+  if (tags.length === 0) {
+    bar.innerHTML = '<span class="text-xs text-[var(--muted)] py-2">暂无标签</span>';
+    return;
+  }
+  const total = Object.values(state.skills).length;
+  const allItem = `<span class="tag-pill ${activeTag === null ? 'active' : ''}" onclick="toggleTag(null)">
+    <span class="flex items-center gap-2"><i data-lucide="layers" class="w-3.5 h-3.5"></i> 全部</span>
+    <span class="tag-count">${total}</span></span>`;
+  const items = tags.map(([t, n]) => `
+    <span class="tag-pill ${activeTag === t ? 'active' : ''}" onclick="toggleTag('${escape(t)}')">
+      <span class="truncate">#${escape(t)}</span>
+      <span class="tag-count">${n}</span>
+    </span>
   `).join('');
+  bar.innerHTML = allItem + items;
+  lucide.createIcons();
 }
 function toggleTag(t) {
-  activeTag = activeTag === t ? null : t;
+  activeTag = t;
   renderList();
 }
 function escape(s) {
@@ -764,7 +801,7 @@ function openDetail(id) {
           <span class="badge mono">v${escape(versions[0]?.version || '-')}</span>
         </div>
         <div class="text-xs text-[var(--muted)] mono mt-0.5">${escape(s.id)}</div>
-        <div class="text-xs text-[var(--text-2)] mt-1">作者 ${escape(s.author || '—')} · 更新于 ${formatDate(s.updatedAt)}</div>
+        <div class="text-xs text-[var(--text-2)] mt-1">更新于 ${formatDate(s.updatedAt)}</div>
       </div>
       <div class="flex gap-1.5">
         <button class="btn btn-ghost" onclick="editSkill('${escape(s.id)}')" title="编辑"><i data-lucide="pencil" class="w-4 h-4"></i></button>
@@ -793,7 +830,9 @@ function openDetail(id) {
   lucide.createIcons();
 }
 function versionRow(v) {
-  const cmd = buildInstallCmd(state.skills[viewingId], v);
+  const skill = state.skills[viewingId];
+  const cmd = buildInstallCmd(skill, v);
+  const dlUrl = skillDownloadUrl(skill, v);
   return `
     <details class="glass rounded-xl">
       <summary class="p-3 flex items-center gap-3">
@@ -806,7 +845,8 @@ function versionRow(v) {
       <div class="px-3 pb-3">
         <div class="text-xs text-[var(--muted)] mb-1.5 flex items-center justify-between">
           <span>📦 安装指令（复制后粘贴给任意 Agent）</span>
-          <span class="flex gap-2">
+          <span class="flex gap-2 flex-wrap justify-end">
+            <a class="btn" href="${escapeHtmlAttr(dlUrl)}" download="${escapeHtmlAttr(v.file)}" onclick="event.stopPropagation()"><i data-lucide="download" class="w-3.5 h-3.5"></i> 下载 ZIP</a>
             <button class="btn" data-cmd="${escapeHtmlAttr(cmd)}" onclick="event.stopPropagation();copyText(this)"><i data-lucide="copy" class="w-3.5 h-3.5"></i> 复制</button>
             <button class="btn btn-danger" onclick="event.stopPropagation();deleteVersion('${escape(v.version)}')"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> 删除</button>
           </span>
@@ -815,6 +855,19 @@ function versionRow(v) {
       </div>
     </details>
   `;
+}
+/** 返回 ZIP 的下载 URL：GitHub raw 直链 或 本地缓存 data URI */
+function skillDownloadUrl(skill, v) {
+  const root = (cfg.root || 'skills').replace(/^\/+|\/+$/g, '');
+  const zipPath = `${root}/${skill.id}/${v.file}`;
+  if (cfg.repo) {
+    return `https://raw.githubusercontent.com/${cfg.repo}/${cfg.branch}/${zipPath}`;
+  }
+  // 本地模式：嵌入的 base64
+  if (v._localBlob) {
+    return `data:application/zip;base64,${v._localBlob}`;
+  }
+  return '#';
 }
 function escapeHtmlAttr(s) {
   return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -830,7 +883,7 @@ function closeDetail() {
 function openAddSkill() {
   editingId = null;
   document.getElementById('skillModalTitle').textContent = '新建 Skill';
-  ['f_name','f_id','f_desc','f_author','f_notes','f_tagInput','f_changelog','f_version'].forEach(id => {
+  ['f_name','f_id','f_desc','f_notes','f_tagInput','f_changelog','f_version'].forEach(id => {
     document.getElementById(id).value = '';
   });
   document.getElementById('f_tagList').innerHTML = '<span class="text-xs text-[var(--muted)]">暂无</span>';
@@ -849,7 +902,6 @@ function editSkill(id) {
   document.getElementById('f_name').value = s.name || '';
   document.getElementById('f_id').value = s.id || '';
   document.getElementById('f_desc').value = s.description || '';
-  document.getElementById('f_author').value = s.author || '';
   document.getElementById('f_notes').value = s.notes || '';
   const tagList = document.getElementById('f_tagList');
   if ((s.tags || []).length === 0) {
@@ -993,7 +1045,6 @@ function applyParsedMeta(meta) {
     if (/^[a-z0-9-]+$/.test(rootDir)) setIf('f_id', rootDir);
   }
   setIf('f_desc', meta.description);
-  setIf('f_author', meta.author);
   if (meta.version) setIf('f_version', meta.version);
   // tags: string | array | comma-separated
   let tags = [];
@@ -1023,7 +1074,6 @@ async function saveSkill() {
   const name = document.getElementById('f_name').value.trim();
   let id = slugify(document.getElementById('f_id').value.trim());
   const desc = document.getElementById('f_desc').value.trim();
-  const author = document.getElementById('f_author').value.trim();
   const notes = document.getElementById('f_notes').value.trim();
   const tags = currentTagsInModal();
   const zipFile = document.getElementById('f_zip').files[0];
@@ -1042,10 +1092,10 @@ async function saveSkill() {
   if (!editingId && state.skills[id]) { toast('技术 ID "' + id + '" 已存在', 'error'); return; }
 
   let skill = editingId ? { ...state.skills[editingId] } : {
-    id, name: finalName, description: finalDesc, author, notes, tags,
+    id, name: finalName, description: finalDesc, notes, tags,
     versions: [], createdAt: new Date().toISOString()
   };
-  skill.name = finalName; skill.description = finalDesc; skill.author = author;
+  skill.name = finalName; skill.description = finalDesc;
   skill.notes = notes; skill.tags = tags;
   skill.updatedAt = new Date().toISOString();
 
