@@ -119,7 +119,27 @@
       ],
       "createdAt": "2026-07-02T08:00:38.201Z",
       "updatedAt": "2026-07-02T08:00:38.202Z"
+    },
+    "interactive-ppt-generator": {
+      "id": "interactive-ppt-generator",
+      "name": "用html做PPT",
+      "description": "Generates a fully interactive, draggable, and animatable HTML presentation based on user provided themes, content, and style. Outputs a self-contained HTML file.",
+      "notes": "谷歌反重力",
+      "tags": [
+        "html PPT"
+      ],
+      "versions": [
+        {
+          "version": "20260702",
+          "file": "interactive-ppt-generator-20260702.zip",
+          "date": "2026-07-02T08:01:16.492Z",
+          "changelog": "",
+          "size": 10655
+        }
+      ],
+      "createdAt": "2026-07-02T08:01:14.819Z",
+      "updatedAt": "2026-07-02T08:01:14.819Z"
     }
   },
-  "updatedAt": "2026-07-02T08:00:39.650Z"
+  "updatedAt": "2026-07-02T08:01:16.493Z"
 }
