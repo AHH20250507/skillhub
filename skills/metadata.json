@@ -139,7 +139,27 @@
       ],
       "createdAt": "2026-07-02T08:01:14.819Z",
       "updatedAt": "2026-07-02T08:01:31.589Z"
+    },
+    "mobile-news-deployer": {
+      "id": "mobile-news-deployer",
+      "name": "IT之家资讯收集",
+      "description": "Deploys an automated mobile phone news collector on Windows with customizable schedule: daily collection time, weekly summary day/time, and on-demand date-range merging. Invoke when user asks to deploy, install, set up, or configure the mobile news auto-collection system.",
+      "notes": "trae",
+      "tags": [
+        "自动化"
+      ],
+      "versions": [
+        {
+          "version": "20260702",
+          "file": "mobile-news-deployer-20260702.zip",
+          "date": "2026-07-02T08:02:58.207Z",
+          "changelog": "",
+          "size": 2538
+        }
+      ],
+      "createdAt": "2026-07-02T08:02:56.687Z",
+      "updatedAt": "2026-07-02T08:02:56.687Z"
     }
   },
-  "updatedAt": "2026-07-02T08:01:31.590Z"
+  "updatedAt": "2026-07-02T08:02:58.207Z"
 }
