@@ -146,7 +146,8 @@
       "description": "Deploys an automated mobile phone news collector on Windows with customizable schedule: daily collection time, weekly summary day/time, and on-demand date-range merging. Invoke when user asks to deploy, install, set up, or configure the mobile news auto-collection system.",
       "notes": "trae",
       "tags": [
-        "自动化"
+        "自动化",
+        "公众号推文"
       ],
       "versions": [
         {
@@ -158,7 +159,7 @@
         }
       ],
       "createdAt": "2026-07-02T08:02:56.687Z",
-      "updatedAt": "2026-07-02T08:02:56.687Z"
+      "updatedAt": "2026-07-02T08:16:29.723Z"
     },
     "poster-packaging": {
       "id": "poster-packaging",
@@ -239,5 +240,5 @@
       "updatedAt": "2026-07-02T08:12:55.303Z"
     }
   },
-  "updatedAt": "2026-07-02T08:13:22.494Z"
+  "updatedAt": "2026-07-02T08:16:29.723Z"
 }
