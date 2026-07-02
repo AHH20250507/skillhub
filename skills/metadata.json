@@ -79,7 +79,27 @@
       ],
       "createdAt": "2026-07-02T07:59:04.691Z",
       "updatedAt": "2026-07-02T07:59:04.691Z"
+    },
+    "html-reader": {
+      "id": "html-reader",
+      "name": "html阅读器",
+      "description": "html阅读器项目文件",
+      "notes": "miclaw",
+      "tags": [
+        "项目文件"
+      ],
+      "versions": [
+        {
+          "version": "20260702",
+          "file": "html-reader-20260702.zip",
+          "date": "2026-07-02T08:00:08.374Z",
+          "changelog": "",
+          "size": 36548
+        }
+      ],
+      "createdAt": "2026-07-02T08:00:05.938Z",
+      "updatedAt": "2026-07-02T08:00:05.938Z"
     }
   },
-  "updatedAt": "2026-07-02T07:59:08.129Z"
+  "updatedAt": "2026-07-02T08:00:08.374Z"
 }
