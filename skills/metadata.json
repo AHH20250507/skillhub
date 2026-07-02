@@ -159,7 +159,27 @@
       ],
       "createdAt": "2026-07-02T08:02:56.687Z",
       "updatedAt": "2026-07-02T08:02:56.687Z"
+    },
+    "poster-packaging": {
+      "id": "poster-packaging",
+      "name": "手机推文",
+      "description": "description: Synthesizes a WeChat official account article from a given theme and URLs. Features an intro, curated ~100-word paragraphs with #006fff bold highlights, alternating images, and an outro.",
+      "notes": "谷歌反重力",
+      "tags": [
+        "公众号推文"
+      ],
+      "versions": [
+        {
+          "version": "20260702",
+          "file": "poster-packaging-20260702.zip",
+          "date": "2026-07-02T08:04:28.235Z",
+          "changelog": "",
+          "size": 16329
+        }
+      ],
+      "createdAt": "2026-07-02T08:04:26.070Z",
+      "updatedAt": "2026-07-02T08:04:26.070Z"
     }
   },
-  "updatedAt": "2026-07-02T08:02:58.207Z"
+  "updatedAt": "2026-07-02T08:04:28.235Z"
 }
