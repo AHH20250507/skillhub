@@ -179,7 +179,25 @@
       ],
       "createdAt": "2026-07-02T08:04:26.070Z",
       "updatedAt": "2026-07-02T08:04:26.070Z"
+    },
+    "skill-creator": {
+      "id": "skill-creator",
+      "name": "skill-creator",
+      "description": "Create or update AgentSkills. Use when designing, structuring, or packaging skills with scripts, references, and assets.",
+      "notes": "",
+      "tags": [],
+      "versions": [
+        {
+          "version": "20260702",
+          "file": "skill-creator-20260702.zip",
+          "date": "2026-07-02T08:04:51.324Z",
+          "changelog": "",
+          "size": 25819
+        }
+      ],
+      "createdAt": "2026-07-02T08:04:49.680Z",
+      "updatedAt": "2026-07-02T08:04:49.680Z"
     }
   },
-  "updatedAt": "2026-07-02T08:04:28.235Z"
+  "updatedAt": "2026-07-02T08:04:51.324Z"
 }
