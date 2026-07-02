@@ -99,7 +99,27 @@
       ],
       "createdAt": "2026-07-02T08:00:05.938Z",
       "updatedAt": "2026-07-02T08:00:05.938Z"
+    },
+    "humanizer-zh": {
+      "id": "humanizer-zh",
+      "name": "去AI味",
+      "description": "（暂无简介）",
+      "notes": "",
+      "tags": [
+        "公众号推文"
+      ],
+      "versions": [
+        {
+          "version": "20260702",
+          "file": "humanizer-zh-20260702.zip",
+          "date": "2026-07-02T08:00:39.650Z",
+          "changelog": "",
+          "size": 13662
+        }
+      ],
+      "createdAt": "2026-07-02T08:00:38.201Z",
+      "updatedAt": "2026-07-02T08:00:38.202Z"
     }
   },
-  "updatedAt": "2026-07-02T08:00:08.374Z"
+  "updatedAt": "2026-07-02T08:00:39.650Z"
 }
