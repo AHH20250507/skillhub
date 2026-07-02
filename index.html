@@ -123,7 +123,8 @@
     position: fixed; inset: 0; background: rgba(0,0,0,0.35);
     backdrop-filter: blur(10px) saturate(180%);
     -webkit-backdrop-filter: blur(10px) saturate(180%);
-    display: flex; align-items: center; justify-content: center; z-index: 50; padding: 20px;
+    display: flex; align-items: flex-start; justify-content: center;
+    z-index: 50; padding: 40px 20px; overflow-y: auto;
     animation: fadeIn .2s ease;
   }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -246,12 +247,6 @@
 <header class="sticky top-0 z-40 nav">
   <div class="max-w-7xl mx-auto px-6 py-3.5 flex items-center gap-4">
     <div class="flex items-center gap-2.5">
-      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
-        <rect width="28" height="28" rx="7" fill="#0071e3"/>
-        <rect x="7" y="7" width="14" height="14" rx="3" fill="#ffffff" fill-opacity="0.35"/>
-        <rect x="9.5" y="9.5" width="9" height="9" rx="2" fill="#ffffff" fill-opacity="0.7"/>
-        <rect x="12" y="12" width="4" height="4" rx="1" fill="#ffffff"/>
-      </svg>
       <div class="leading-tight">
         <div class="font-semibold text-[15px] tracking-tight">Skill Hub</div>
         <div class="text-[11px] text-[var(--muted)]">智能体技能管理中心</div>
@@ -884,7 +879,6 @@ function cardHTML(s) {
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-2 flex-wrap">
             <div class="font-semibold truncate text-[15px]">${escape(s.name)}</div>
-            ${latest ? `<span class="badge mono">v${escape(latest.version)}</span>` : ''}
           </div>
           <div class="text-xs text-[var(--muted)] mono truncate mt-0.5">${escape(s.id)}</div>
         </div>
@@ -949,6 +943,9 @@ function openDetail(id) {
     <div class="space-y-3">${verHTML}</div>
   `;
   document.getElementById('detailModal').classList.remove('hidden');
+  document.getElementById('detailModal').scrollTop = 0;
+  var db = document.getElementById('detailBody');
+  if (db) db.scrollTop = 0;
   lucide.createIcons();
 }
 function versionRow(v) {
@@ -1014,6 +1011,9 @@ function openAddSkill() {
   document.getElementById('f_version').placeholder = nextBuildVersion([]);
   document.getElementById('parseStatus').innerHTML = '';
   document.getElementById('skillModal').classList.remove('hidden');
+  document.getElementById('skillModal').scrollTop = 0;
+  var mb = document.querySelector('#skillModal .modal-body');
+  if (mb) mb.scrollTop = 0;
 }
 function editSkill(id) {
   const s = state.skills[id];
@@ -1039,6 +1039,9 @@ function editSkill(id) {
   document.getElementById('f_zip').value = '';
   document.getElementById('parseStatus').innerHTML = '';
   document.getElementById('skillModal').classList.remove('hidden');
+  document.getElementById('skillModal').scrollTop = 0;
+  var mb = document.querySelector('#skillModal .modal-body');
+  if (mb) mb.scrollTop = 0;
 }
 function closeSkillModal() {
   document.getElementById('skillModal').classList.add('hidden');
