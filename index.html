@@ -837,7 +837,7 @@ function openAddSkill() {
   document.getElementById('f_zipInfo').textContent = '';
   document.getElementById('f_zip').value = '';
   document.getElementById('f_version').placeholder = nextBuildVersion([]);
-  document.getElementById('nextVerHint').textContent = '';
+  document.getElementById('parseStatus').innerHTML = '';
   document.getElementById('skillModal').classList.remove('hidden');
 }
 function editSkill(id) {
@@ -861,9 +861,9 @@ function editSkill(id) {
   document.getElementById('f_changelog').value = '';
   document.getElementById('f_version').value = '';
   document.getElementById('f_version').placeholder = nextBuildVersion(s.versions || []);
-  document.getElementById('nextVerHint').textContent = '下一版本：' + nextBuildVersion(s.versions || []);
   document.getElementById('f_zipInfo').textContent = '';
   document.getElementById('f_zip').value = '';
+  document.getElementById('parseStatus').innerHTML = '';
   document.getElementById('skillModal').classList.remove('hidden');
 }
 function closeSkillModal() {
