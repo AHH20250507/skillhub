@@ -575,8 +575,8 @@ function ghPath(path) {
 }
 async function ghGet(path) {
   if (!cfg.repo) return null;
-  const url = `${GH_API}/repos/${cfg.repo}/contents/${ghPath(path)}?ref=${encodeURIComponent(cfg.branch)}`;
-  const res = await fetch(url, { headers: ghHeaders() });
+  const url = `${GH_API}/repos/${cfg.repo}/contents/${ghPath(path)}?ref=${encodeURIComponent(cfg.branch)}&_t=${Date.now()}`;
+  const res = await fetch(url, { headers: ghHeaders(), cache: 'no-store' });
   if (res.status === 404) return null;
   if (res.status === 403) {
     const j = await res.json().catch(() => ({}));
@@ -591,7 +591,7 @@ async function ghPut(path, contentBase64, message, sha) {
   const body = { message, content: contentBase64, branch: cfg.branch };
   if (sha) body.sha = sha;
   const res = await fetch(url, {
-    method: 'PUT', headers: ghHeaders(),
+    method: 'PUT', headers: ghHeaders(), cache: 'no-store',
     body: JSON.stringify(body),
   });
   const j = await res.json().catch(() => ({}));
@@ -658,7 +658,14 @@ async function syncFromGitHub() {
       return;
     }
     const merged = { ...state.skills };
-    for (const id of Object.keys(meta.skills)) merged[id] = meta.skills[id];
+    for (const id of Object.keys(meta.skills)) {
+      const remote = meta.skills[id];
+      const local = merged[id];
+      /* 取 updatedAt 更新的版本，防止远程旧数据覆盖本地新改动 */
+      if (!local || (remote.updatedAt || '') >= (local.updatedAt || '')) {
+        merged[id] = remote;
+      }
+    }
     state.skills = normalizeVersions(merged);
     saveLocal();
     renderList();
