@@ -241,9 +241,43 @@
     border-radius: 12px;
   }
   h3 { letter-spacing: -0.015em; }
+  /* Drag-and-drop overlay */
+  .drop-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0,113,227,0.08);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: none; align-items: center; justify-content: center;
+    pointer-events: none;
+  }
+  .drop-overlay.active { display: flex; }
+  .drop-box {
+    padding: 48px 64px; border-radius: 24px;
+    background: rgba(255,255,255,0.95);
+    border: 3px dashed var(--accent);
+    text-align: center;
+    box-shadow: 0 24px 64px rgba(0,113,227,0.12);
+    animation: modalIn .2s ease;
+  }
+  .drop-box svg { color: var(--accent); margin-bottom: 12px; }
+  .drop-box .drop-title { font-size: 18px; font-weight: 600; color: var(--text); }
+  .drop-box .drop-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
 </style>
 </head>
 <body>
+
+<!-- Drag-and-drop overlay -->
+<div id="dropOverlay" class="drop-overlay">
+  <div class="drop-box">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+      <polyline points="17 8 12 3 7 8"/>
+      <line x1="12" y1="3" x2="12" y2="15"/>
+    </svg>
+    <div class="drop-title">松开即可上传 Skill ZIP</div>
+    <div class="drop-sub">拖放 .zip 文件到此处，自动新建 Skill</div>
+  </div>
+</div>
 
 <!-- Loading indicator -->
 <div id="pageLoader" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#f5f5f7;z-index:999;transition:opacity .3s">
@@ -1568,6 +1602,51 @@ document.addEventListener('DOMContentLoaded', function() {
   } else if (cfg.repo) {
     syncFromGitHub();
   }
+
+  /* ---- 全页面拖放 ZIP 上传 ---- */
+  var dropOverlay = document.getElementById('dropOverlay');
+  var dragCounter = 0;
+  document.addEventListener('dragenter', function(e) {
+    e.preventDefault();
+    dragCounter++;
+    if (e.dataTransfer && e.dataTransfer.types && e.dataTransfer.types.indexOf('Files') >= 0) {
+      dropOverlay.classList.add('active');
+    }
+  });
+  document.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    dragCounter--;
+    if (dragCounter <= 0) {
+      dragCounter = 0;
+      dropOverlay.classList.remove('active');
+    }
+  });
+  document.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+  });
+  document.addEventListener('drop', function(e) {
+    e.preventDefault();
+    dragCounter = 0;
+    dropOverlay.classList.remove('active');
+    var files = e.dataTransfer && e.dataTransfer.files;
+    if (!files || files.length === 0) return;
+    var zipFile = null;
+    for (var i = 0; i < files.length; i++) {
+      if (files[i].name.toLowerCase().endsWith('.zip') || files[i].type === 'application/zip' || files[i].type === 'application/x-zip-compressed') {
+        zipFile = files[i];
+        break;
+      }
+    }
+    if (!zipFile) { toast('请拖入 .zip 格式的 Skill 包', 'warn'); return; }
+    /* 打开新建 Skill 弹窗并自动填入拖入的 ZIP */
+    openAddSkill();
+    var dt = new DataTransfer();
+    dt.items.add(zipFile);
+    document.getElementById('f_zip').files = dt.files;
+    document.getElementById('f_zipInfo').textContent = zipFile.name + ' · ' + sizeHuman(zipFile.size);
+    parseSkillZip(zipFile);
+  });
 });
 </script>
 </body>
