@@ -238,7 +238,25 @@
       ],
       "createdAt": "2026-07-02T08:12:55.303Z",
       "updatedAt": "2026-07-02T08:12:55.303Z"
+    },
+    "skill": {
+      "id": "skill",
+      "name": "知识库创建skill",
+      "description": ">-",
+      "notes": "",
+      "tags": [],
+      "versions": [
+        {
+          "version": "20260714",
+          "file": "skill-20260714.zip",
+          "date": "2026-07-14T12:28:41.617Z",
+          "changelog": "",
+          "size": 13894
+        }
+      ],
+      "createdAt": "2026-07-14T12:28:40.100Z",
+      "updatedAt": "2026-07-14T12:28:40.100Z"
     }
   },
-  "updatedAt": "2026-07-02T08:16:29.723Z"
+  "updatedAt": "2026-07-14T12:28:41.617Z"
 }
