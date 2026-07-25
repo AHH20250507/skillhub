@@ -285,7 +285,8 @@
       "description": "（暂无简介）",
       "notes": "",
       "tags": [
-        "公众号 开发"
+        "公众号",
+        "开发"
       ],
       "versions": [
         {
@@ -297,8 +298,26 @@
         }
       ],
       "createdAt": "2026-07-25T03:24:57.496Z",
-      "updatedAt": "2026-07-25T03:25:48.456Z"
+      "updatedAt": "2026-07-25T03:25:57.085Z"
+    },
+    "skill-hub": {
+      "id": "skill-hub",
+      "name": "skill hub技能管理中心",
+      "description": "（暂无简介）",
+      "notes": "",
+      "tags": [],
+      "versions": [
+        {
+          "version": "20260725",
+          "file": "skill-hub-20260725.zip",
+          "date": "2026-07-25T03:28:08.001Z",
+          "changelog": "",
+          "size": 6525122
+        }
+      ],
+      "createdAt": "2026-07-25T03:28:03.144Z",
+      "updatedAt": "2026-07-25T03:28:03.144Z"
     }
   },
-  "updatedAt": "2026-07-25T03:25:48.457Z"
+  "updatedAt": "2026-07-25T03:28:08.001Z"
 }
