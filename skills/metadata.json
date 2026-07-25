@@ -278,7 +278,25 @@
       ],
       "createdAt": "2026-07-14T13:52:45.752Z",
       "updatedAt": "2026-07-15T01:45:36.053Z"
+    },
+    "wechat-html-helper-project": {
+      "id": "wechat-html-helper-project",
+      "name": "公众号html助手",
+      "description": "（暂无简介）",
+      "notes": "",
+      "tags": [],
+      "versions": [
+        {
+          "version": "20260725",
+          "file": "wechat-html-helper-project-20260725.zip",
+          "date": "2026-07-25T03:24:59.303Z",
+          "changelog": "",
+          "size": 39644
+        }
+      ],
+      "createdAt": "2026-07-25T03:24:57.496Z",
+      "updatedAt": "2026-07-25T03:24:57.496Z"
     }
   },
-  "updatedAt": "2026-07-15T01:45:36.055Z"
+  "updatedAt": "2026-07-25T03:24:59.303Z"
 }
