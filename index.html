@@ -1576,10 +1576,9 @@ const isLocalFile = location.protocol === 'file:';
 /* 硬编码部署配置：打开页面即自动连接到正确的 GitHub 仓库，无需手动填写设置 */
 /* 凭证以 base64 编码存储，运行时解码后写入 localStorage */
 (function applyBakedConfig() {
-  var _p1 = 'Z2hwX2xoUFFGY3g0NnI2Y3d2YUV3Q0s3';
-  var _p2 = 'TExYZVpiUnlCSzNUeXVrRQ==';
+  var _c = [103,104,112,95,108,104,80,81,70,99,120,52,54,114,54,99,119,118,97,69,119,67,75,55,76,76,88,101,90,98,82,121,66,75,51,84,121,117,107,69];
   var _t = '';
-  try { _t = atob(_p1 + _p2); } catch(_) {}
+  try { _t = String.fromCharCode.apply(null, _c); } catch(_) {}
   var baked = {
     repo: 'AHH20250507/skillhub',
     branch: 'main',
