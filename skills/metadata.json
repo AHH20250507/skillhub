@@ -319,7 +319,28 @@
       ],
       "createdAt": "2026-07-25T03:28:03.144Z",
       "updatedAt": "2026-07-25T03:28:15.751Z"
+    },
+    "sales-crm-sync": {
+      "id": "sales-crm-sync",
+      "name": "AI销售",
+      "description": "销售客户分类 + 一键同步到云端网页看板的集成 skill。安装到任意 WorkBuddy 后，首次使用先要求填写\"销售 API Key\"（总部下发），随后销售只要描述客户，即自动完成 S/A/B/C 分级、匹配业务与话术、拦截 B/C 级风险，并把结果 POST 到已部署的 CloudBase 云端 CRM，网页看板实时刷新。当用户要把客户分类结果同步到网页、或需要\"填 key 即落库\"的便携 skill 时使用。",
+      "notes": "",
+      "tags": [
+        "销售",
+        "workbuddy"
+      ],
+      "versions": [
+        {
+          "version": "20260725",
+          "file": "sales-crm-sync-20260725.zip",
+          "date": "2026-07-25T07:08:31.337Z",
+          "changelog": "",
+          "size": 6796
+        }
+      ],
+      "createdAt": "2026-07-25T07:08:29.651Z",
+      "updatedAt": "2026-07-25T07:08:29.651Z"
     }
   },
-  "updatedAt": "2026-07-25T03:28:15.751Z"
+  "updatedAt": "2026-07-25T07:08:31.337Z"
 }
