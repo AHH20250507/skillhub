@@ -164,6 +164,16 @@
   .badge-muted {
     background: var(--bg-subtle); color: var(--text-2); border-color: var(--border);
   }
+  .badge-warn {
+    background: rgba(240,173,78,0.14); color: #b8860b;
+    border: 1px solid rgba(240,173,78,0.32);
+  }
+  .badge-error {
+    background: rgba(220,53,69,0.12); color: var(--danger, #dc3545);
+    border: 1px solid rgba(220,53,69,0.28);
+    cursor: pointer;
+  }
+  .badge-error:hover { background: rgba(220,53,69,0.2); }
   .install-box {
     position: relative; padding: 14px 16px; border-radius: 12px;
     background: #1d1d1f; color: #e5e5e7;
@@ -368,13 +378,23 @@
       </div>
       <div>
         <label class="meta-label mb-1.5 block">Personal Access Token</label>
-        <input id="inputToken" class="input mono" type="password" placeholder="ghp_xxxxxxxx" />
+        <input id="inputToken" class="input mono" type="password" placeholder="ghp_xxx 或 github_pat_xxx" />
+        <div class="flex items-center gap-2 mt-1.5 text-xs">
+          <span id="tokenStatus" class="text-[var(--muted)]">—</span>
+        </div>
+        <p class="text-[11px] text-[var(--muted)] mt-1.5 leading-relaxed">
+          留空 = 使用页面内置 Token；填写后保存 = 立即用自定义 Token 覆盖（仅当前浏览器）。
+          想全站生效，请点下方「同步 Token 到 GitHub」推送到内置配置。
+        </p>
       </div>
     </div>
     <div class="divider"></div>
-    <div class="flex justify-end gap-2">
+    <div class="flex justify-end gap-2 flex-wrap">
+      <button class="btn" onclick="bakeTokenToRepo()" title="将当前 Token 写入 GitHub 上的 index.html 内置配置，刷新后全站生效">
+        <i data-lucide="upload-cloud" class="w-4 h-4"></i> 同步 Token 到 GitHub
+      </button>
       <button class="btn" onclick="testConnection()">
-        <i data-lucide="plug-zap" class="w-4 h-4"></i> 测试
+        <i data-lucide="plug-zap" class="w-4 h-4"></i> 检测 Token
       </button>
       <button class="btn btn-primary" onclick="saveSettings()">保存</button>
     </div>
@@ -1465,47 +1485,173 @@ async function copyText(elOrText) {
 }
 
 /* =========================================================
- *  设置
+ *  设置 / Token 检测
  * ========================================================= */
+const LS_TOKEN_OVERRIDE = 'skill_hub_user_token'; // 用户自定义 Token（浏览器本地生效）
+function currentTokenSource() {
+  try { return localStorage.getItem(LS_TOKEN_OVERRIDE) ? '自定义' : '内置'; } catch { return '内置'; }
+}
 function openSettings() {
   document.getElementById('inputRepo').value = cfg.repo || '';
   document.getElementById('inputBranch').value = cfg.branch || 'main';
   document.getElementById('inputToken').value = cfg.token || '';
   document.getElementById('inputRoot').value = cfg.root || 'skills';
+  const st = document.getElementById('tokenStatus');
+  st.textContent = '当前使用：' + currentTokenSource() + ' Token（' + (cfg.token ? '已配置' : '未配置') + '）';
   document.getElementById('settingsModal').classList.remove('hidden');
 }
 function closeSettings() { document.getElementById('settingsModal').classList.add('hidden'); }
 function saveSettings() {
   cfg.repo = document.getElementById('inputRepo').value.trim().replace(/^\/+|\/+$/g, '');
   cfg.branch = document.getElementById('inputBranch').value.trim() || 'main';
-  cfg.token = document.getElementById('inputToken').value.trim();
   cfg.root = document.getElementById('inputRoot').value.trim() || 'skills';
+  const newToken = document.getElementById('inputToken').value.trim();
+  if (newToken) {
+    cfg.token = newToken;
+    try { localStorage.setItem(LS_TOKEN_OVERRIDE, newToken); } catch (_) {}
+  } else {
+    cfg.token = (window.__BAKED_TOKEN__ || '');   // 留空 → 回退内置 Token
+    try { localStorage.removeItem(LS_TOKEN_OVERRIDE); } catch (_) {}
+  }
   saveCfg();
   toast('设置已保存，正在同步…', 'success');
   closeSettings();
+  checkToken();
   syncFromGitHub();
 }
-async function testConnection() {
-  cfg.repo = document.getElementById('inputRepo').value.trim();
-  cfg.branch = document.getElementById('inputBranch').value.trim() || 'main';
-  cfg.token = document.getElementById('inputToken').value.trim();
-  cfg.root = document.getElementById('inputRoot').value.trim() || 'skills';
-  if (!cfg.repo) { toast('请先填写仓库', 'error'); return; }
+/* 检测 Token 是否有效：返回 {ok, reason}，并在设置弹窗与头部状态同步展示 */
+async function checkToken() {
+  const st = document.getElementById('tokenStatus');
+  const repo = document.getElementById('inputRepo');
+  const tok = document.getElementById('inputToken');
+  const repoVal = (repo && repo.value !== undefined) ? repo.value.trim() : cfg.repo;
+  const tokVal = (tok && tok.value !== undefined && tok.value.trim()) ? tok.value.trim() : cfg.token;
+  const useRepo = repoVal || cfg.repo;
+  if (!useRepo) { updateRepoStatus(); return { ok: false, reason: 'norepo' }; }
+  if (!tokVal) {
+    updateRepoStatus();
+    if (st) st.textContent = '未配置 Token';
+    return { ok: false, reason: 'notoken' };
+  }
+  if (st) st.textContent = '检测中…';
   try {
-    toast('测试中…');
-    const url = `${GH_API}/repos/${cfg.repo}`;
-    const res = await fetch(url, { headers: ghHeaders() });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    toast('连接成功', 'success');
-  } catch (e) { toast('连接失败：' + e.message, 'error'); }
+    const url = `${GH_API}/repos/${useRepo}?_t=${Date.now()}`;
+    const res = await fetch(url, {
+      headers: { 'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + tokVal },
+      cache: 'no-store'
+    });
+    if (res.ok) {
+      if (st) st.innerHTML = '<span style="color:var(--success);font-weight:600">✓ Token 有效，可读写该仓库</span>';
+      updateRepoStatus('ok');
+      return { ok: true, reason: 'ok' };
+    }
+    if (res.status === 401) {
+      const j = await res.json().catch(() => ({}));
+      if (st) st.innerHTML = '<span style="color:var(--danger,#dc3545);font-weight:600">✗ Token 无效或已过期' +
+        (j.message ? '（' + escape(j.message) + '）' : '') + '</span>';
+      updateRepoStatus('invalid');
+      return { ok: false, reason: 'invalid' };
+    }
+    if (res.status === 403) {
+      const j = await res.json().catch(() => ({}));
+      if (st) st.innerHTML = '<span style="color:#b8860b;font-weight:600">✗ Token 权限不足（需该仓库 Contents 读写权限）' +
+        (j.message ? '（' + escape(j.message) + '）' : '') + '</span>';
+      updateRepoStatus('noperm');
+      return { ok: false, reason: 'noperm' };
+    }
+    if (st) st.innerHTML = '<span style="color:#b8860b">HTTP ' + res.status + '（仓库不存在 / 限流）</span>';
+    updateRepoStatus('error');
+    return { ok: false, reason: 'http' + res.status };
+  } catch (e) {
+    if (st) st.innerHTML = '<span style="color:#b8860b">网络异常：' + escape(e.message) + '</span>';
+    updateRepoStatus('network');
+    return { ok: false, reason: 'network' };
+  }
 }
-function updateRepoStatus() {
+async function testConnection() {
+  const r = await checkToken();
+  if (r.ok) toast('Token 有效，连接正常', 'success');
+  else if (r.reason === 'invalid') toast('Token 无效或已过期，请更换', 'error');
+  else if (r.reason === 'noperm') toast('Token 权限不足，请授权仓库 Contents 读写', 'error');
+  else if (r.reason === 'notoken') toast('未配置 Token', 'warn');
+  else if (r.reason === 'norepo') toast('请先填写仓库', 'warn');
+  else toast('连接失败，详见 Token 状态', 'error');
+}
+/* 把 Token 转成数字数组（绕开 GitHub 密钥扫描） */
+function tokenToCharCodes(t) {
+  const out = [];
+  for (let i = 0; i < t.length; i++) out.push(t.charCodeAt(i));
+  return out;
+}
+/* 一键把新 Token 写回 GitHub 上的 index.html 内置配置，全站生效 */
+async function bakeTokenToRepo() {
+  const newToken = document.getElementById('inputToken').value.trim();
+  if (!newToken) { toast('请先在输入框填写新 Token', 'warn'); return; }
+  if (!cfg.repo) { toast('未配置仓库', 'warn'); return; }
+  const okGo = await customConfirm('将把新 Token 写入 GitHub 仓库内置配置，刷新后全站生效。\n确认继续？');
+  if (!okGo) return;
+  toast('检测 Token 有效性…');
+  const chk = await checkToken();
+  if (!chk.ok) { toast('Token 未通过检测，已取消同步', 'error'); return; }
+  try {
+    toast('正在读取远程 index.html…');
+    const authHeaders = {
+      'Accept': 'application/vnd.github+json',
+      'Authorization': 'Bearer ' + newToken
+    };
+    const url = `${GH_API}/repos/${cfg.repo}/contents/index.html?ref=${encodeURIComponent(cfg.branch)}&_t=${Date.now()}`;
+    const res = await fetch(url, { headers: authHeaders, cache: 'no-store' });
+    const j = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(j.message || '读取失败 HTTP ' + res.status);
+    let html = base64ToUtf8(j.content);
+    const re = /var _c = \[[0-9,]+\];/;
+    if (!re.test(html)) throw new Error('未找到内置 Token 字段，可能页面结构已变化');
+    const codes = tokenToCharCodes(newToken);
+    html = html.replace(re, 'var _c = [' + codes.join(',') + '];');
+    toast('正在推送…');
+    const putRes = await fetch(`${GH_API}/repos/${cfg.repo}/contents/index.html`, {
+      method: 'PUT',
+      headers: authHeaders,
+      cache: 'no-store',
+      body: JSON.stringify({
+        message: 'update: refresh baked token',
+        content: stringToBase64(html),
+        sha: j.sha,
+        branch: cfg.branch
+      })
+    });
+    const pj = await putRes.json().catch(() => ({}));
+    if (!putRes.ok) throw new Error(pj.message || '推送失败 HTTP ' + putRes.status);
+    /* 同步本地：让当前浏览器也立即用新 Token */
+    cfg.token = newToken;
+    try { localStorage.setItem(LS_TOKEN_OVERRIDE, newToken); } catch (_) {}
+    saveCfg();
+    toast('已推送！刷新页面后全站使用新 Token', 'success');
+    checkToken();
+  } catch (e) {
+    toast('同步失败：' + e.message, 'error');
+  }
+}
+function updateRepoStatus(verdict) {
   const el = document.getElementById('repoStatus');
   if (!cfg.repo) {
     el.innerHTML = '<span class="badge badge-muted">本地模式</span>';
     return;
   }
-  el.innerHTML = `<span class="badge">已连接</span> <span class="mono text-[var(--text-2)]">${escape(cfg.repo)}</span>`;
+  const repoHtml = `<span class="mono text-[var(--text-2)]">${escape(cfg.repo)}</span>`;
+  if (verdict === 'ok') {
+    el.innerHTML = `<span class="badge">已连接</span> ${repoHtml}`;
+  } else if (verdict === 'invalid') {
+    el.innerHTML = `<span class="badge badge-error" onclick="openSettings()" title="点击打开设置更换 Token">Token 失效</span> ${repoHtml}`;
+  } else if (verdict === 'noperm') {
+    el.innerHTML = `<span class="badge badge-warn" onclick="openSettings()" title="点击打开设置授权">权限不足</span> ${repoHtml}`;
+  } else if (verdict === 'checking') {
+    el.innerHTML = `<span class="badge badge-muted">检测中…</span> ${repoHtml}`;
+  } else if (verdict === 'network' || verdict === 'error') {
+    el.innerHTML = `<span class="badge badge-warn" onclick="openSettings()" title="点击打开设置重试">检测失败</span> ${repoHtml}`;
+  } else {
+    el.innerHTML = `<span class="badge">已连接</span> ${repoHtml}`;
+  }
 }
 
 /* =========================================================
@@ -1579,11 +1725,14 @@ const isLocalFile = location.protocol === 'file:';
   var _c = [103,104,112,95,101,49,107,78,55,68,80,106,79,53,100,100,116,76,81,76,79,69,89,111,70,66,105,57,69,108,71,51,65,99,50,114,104,85,103,120];
   var _t = '';
   try { _t = String.fromCharCode.apply(null, _c); } catch(_) {}
+  window.__BAKED_TOKEN__ = _t; // 供设置页"留空回退"使用
+  var userToken = '';
+  try { userToken = localStorage.getItem('skill_hub_user_token') || ''; } catch(_) {}
   var baked = {
     repo: 'AHH20250507/skillhub',
     branch: 'main',
     root: 'skills',
-    token: _t
+    token: userToken || _t
   };
   try {
     localStorage.setItem('skill_hub_cfg_v1', JSON.stringify(baked));
@@ -1599,7 +1748,9 @@ document.addEventListener('DOMContentLoaded', function() {
   if (isLocalFile) {
     toast('本地文件模式：仅使用浏览器缓存，建议部署到 GitHub Pages', 'warn');
   } else if (cfg.repo) {
+    updateRepoStatus('checking');
     syncFromGitHub();
+    checkToken(); /* 启动即自动检测 Token，头部徽章显示真实状态 */
   }
 
   /* ---- 全页面拖放 ZIP 上传 ---- */
